@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useToto } from '../context/TotoContext';
-import { BookmarkletButton } from './BookmarkletButton';
 import { SaveCouponModal } from './SaveCouponModal';
+import { NesineExportModal } from './NesineExportModal';
 
 export const VaultStation: React.FC = () => {
   const { solution, matches, setToastMessage, setSelectedTab, programInfo } = useToto() as any;
@@ -9,6 +9,7 @@ export const VaultStation: React.FC = () => {
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [selectedSheetIdx, setSelectedSheetIdx] = useState<number>(0);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
+  const [isNesineModalOpen, setIsNesineModalOpen] = useState<boolean>(false);
 
   if (!solution || !solution.columns || solution.columns.length === 0) {
     return (
@@ -104,85 +105,80 @@ export const VaultStation: React.FC = () => {
 
       {/* 2. Main Grid: Left Export Hub / Right Single Sheet Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1">
-        {/* Left Column (5 cols): Export Hub */}
-        <div className="lg:col-span-5 flex flex-col gap-2.5 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3">
-          {/* Native Non-Plugin Bookmarklet Hub (Nesine Köprüsü) */}
-          <BookmarkletButton />
+        {/* Left Column (5 cols): Streamlined Nesine Direct Upload Hub */}
+        <div className="lg:col-span-5 flex flex-col justify-between gap-3 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-4 shadow-xl">
+          <div className="flex flex-col gap-3">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#1e293b] pb-2">
+              <h3 className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                <span className="text-sm">🚀</span>
+                <span>Nesine Konsol Enjektörü</span>
+              </h3>
+              <span className="text-[10px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">
+                10'lu Paket Motoru
+              </span>
+            </div>
 
-          {/* Format Tabs */}
-          <div className="flex items-center gap-1 bg-[#06080e] p-1 rounded border border-[#1e293b]">
+            {/* Primary Action: Direct Nesine Upload Button */}
             <button
-              onClick={() => setActiveFormat('txt')}
-              className={`flex-1 py-1 text-[10px] font-bold rounded transition cursor-pointer ${activeFormat === 'txt' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
+              onClick={() => setIsNesineModalOpen(true)}
+              className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.98] cursor-pointer text-xs"
             >
-              📝 Düz (.TXT)
+              <span className="text-lg">🚀</span>
+              <span>Nesine'ye Otomatik Aktar</span>
+              <span className="text-[10px] font-bold bg-slate-950 text-emerald-300 px-2 py-0.5 rounded-md">
+                10'lu Batch
+              </span>
             </button>
-            <button
-              onClick={() => setActiveFormat('compact')}
-              className={`flex-1 py-1 text-[10px] font-bold rounded transition cursor-pointer ${activeFormat === 'compact' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
-            >
-              ⚡ Kompakt JSON
-            </button>
-            <button
-              onClick={() => setActiveFormat('std')}
-              className={`flex-1 py-1 text-[10px] font-bold rounded transition cursor-pointer ${activeFormat === 'std' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
-            >
-              📄 Geniş JSON
-            </button>
+
+            {/* Feature Information Cards */}
+            <div className="bg-[#06080e] border border-[#1e293b] rounded-xl p-3 flex flex-col gap-2 text-xs text-slate-300">
+              <div className="flex items-center justify-between font-mono pb-1 border-b border-[#1e293b]/60 text-[11px]">
+                <span className="text-[#64748b]">Aktarım Şekli:</span>
+                <span className="font-bold text-white">10 Kuponda Bir 2.5s Dinlenme</span>
+              </div>
+              <div className="flex items-center justify-between font-mono pb-1 border-b border-[#1e293b]/60 text-[11px]">
+                <span className="text-[#64748b]">Hedef Konum:</span>
+                <span className="font-bold text-emerald-400">Nesine Kayıtlı Kuponlarım</span>
+              </div>
+              <div className="flex items-center justify-between font-mono text-[11px]">
+                <span className="text-[#64748b]">Güvenlik:</span>
+                <span className="font-bold text-amber-300">Rate-Limit & XSRF Korumalı</span>
+              </div>
+            </div>
+
+            <div className="p-2.5 bg-[#06080e]/70 border border-[#1e293b] rounded-lg text-[10.5px] text-[#94a3b8] leading-relaxed">
+              💡 <b>Nasıl Çalışır?</b> Yukarıdaki butona basarak aktarım kodunu kopyalayın, Nesine sayfasında <b>F12 &gt; Console</b> sekmesine yapıştırıp Enter'a basın. Tüm {totCols} kolonunuz otomatik olarak hesabınıza işlenir.
+            </div>
           </div>
 
-          {/* Text Area */}
-          <div className="relative">
-            <textarea
-              readOnly
-              rows={6}
-              value={activeFormat === 'txt' ? plainText : activeFormat === 'compact' ? compactJson : stdJson}
-              className="w-full bg-[#06080e] border border-[#1e293b] rounded p-2 text-[10.5px] font-mono text-[#cbd5e1] resize-none focus:outline-none focus:border-[#38bdf8]"
-            />
+          {/* Secondary Actions: Kupon Havuzu & Çevrimdışı İndirme */}
+          <div className="flex flex-col gap-2 pt-2 border-t border-[#1e293b]">
             <button
-              onClick={() => handleCopy(activeFormat === 'txt' ? plainText : activeFormat === 'compact' ? compactJson : stdJson, activeFormat.toUpperCase())}
-              className="absolute top-2 right-2 bg-[#0f172a] hover:bg-[#1e293b] text-sky-400 hover:text-white border border-[#1e293b] px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer"
+              onClick={() => setIsSaveModalOpen(true)}
+              className="w-full py-2.5 px-3 bg-[#0f172a] hover:bg-[#1e293b] text-sky-300 hover:text-white border border-[#1e293b] hover:border-sky-500/50 rounded-xl font-bold flex items-center justify-center gap-2 transition cursor-pointer text-xs"
             >
-              {copiedType === activeFormat.toUpperCase() ? '✅ Kopyalandı' : 'Kopyala'}
+              <span>💾</span>
+              <span>Kupon Havuzuna Ekle (Çoklu Takip)</span>
             </button>
-          </div>
 
-          {/* Save to Pool CTA */}
-          <button
-            onClick={() => setIsSaveModalOpen(true)}
-            className="w-full py-2 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-lg shadow-md flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer text-xs"
-          >
-            <span>💾</span>
-            <span>Kuponu Kaydet (Havuza Ekle)</span>
-          </button>
-
-          {/* Quick Action Download Buttons */}
-          <div className="grid grid-cols-3 gap-1.5">
-
-            <button
-              onClick={() => handleDownload(plainText, `supertoto_${mode}_${totCols}kolon.txt`, 'text/plain')}
-              className="py-1.5 px-2 bg-[#0f172a] hover:bg-[#1e293b] text-[#f8fafc] border border-[#1e293b] rounded text-[10.5px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
-            >
-              <span>💾</span> .TXT İndir
-            </button>
-            <button
-              onClick={() => handleDownload(`No,Kolon\n` + columns.map((c, i) => `${i + 1},${c.join('')}`).join('\n'), `supertoto_${mode}_${totCols}kolon.csv`, 'text/csv')}
-              className="py-1.5 px-2 bg-[#0f172a] hover:bg-[#1e293b] text-[#f8fafc] border border-[#1e293b] rounded text-[10.5px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
-            >
-              <span>📊</span> .CSV İndir
-            </button>
-            <button
-              onClick={() => handleDownload(stdJson, `supertoto_${mode}_${totCols}kolon.json`, 'application/json')}
-              className="py-1.5 px-2 bg-[#0f172a] hover:bg-[#1e293b] text-[#f8fafc] border border-[#1e293b] rounded text-[10.5px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
-            >
-              <span>📦</span> .JSON İndir
-            </button>
-          </div>
-
-          <div className="p-2.5 bg-[#06080e] border border-[#1e293b] rounded text-[10px] text-[#94a3b8] leading-relaxed">
-            💡 <b className="text-white">İpucu:</b> {totCols} kolonluk kuponunuz <b className="text-emerald-400">{totSheets} adet 40 TL'lik sayfaya</b> kusursuz olarak paylaştırılmıştır. Tek tıkla Nesine'ye gönderebilir veya dosya olarak indirebilirsiniz.
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleDownload(plainText, `supertoto_${mode}_${totCols}kolon.txt`, 'text/plain')}
+                className="py-1.5 px-2 bg-[#06080e] hover:bg-[#0f172a] text-[#94a3b8] hover:text-white border border-[#1e293b] rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
+              >
+                <span>📝</span> .TXT İndir
+              </button>
+              <button
+                onClick={() => handleDownload(`No,Kolon\n` + columns.map((c, i) => `${i + 1},${c.join('')}`).join('\n'), `supertoto_${mode}_${totCols}kolon.csv`, 'text/csv')}
+                className="py-1.5 px-2 bg-[#06080e] hover:bg-[#0f172a] text-[#94a3b8] hover:text-white border border-[#1e293b] rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
+              >
+                <span>📊</span> .CSV İndir
+              </button>
+            </div>
           </div>
         </div>
+
 
         {/* Right Column (7 cols): Single 40 TL Sheet Inspector (Zero DOM Overload) */}
         <div className="lg:col-span-7 flex flex-col bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 overflow-hidden">
@@ -304,7 +300,16 @@ export const VaultStation: React.FC = () => {
           setToastMessage(`💾 Kupon "${name}" başarıyla kaydedildi.`);
         }}
       />
+
+      {/* Nesine Direct 10-Batch Export Modal */}
+      <NesineExportModal
+        isOpen={isNesineModalOpen}
+        onClose={() => setIsNesineModalOpen(false)}
+        columns={solution.compact_columns || columns.map(c => c.join(''))}
+        pno={programInfo?.pNo}
+      />
     </div>
   );
 };
+
 

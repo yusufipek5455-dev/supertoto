@@ -5,7 +5,7 @@ import { TotoProvider, useToto } from '../context/TotoContext';
 import { MatchRow } from '../components/MatchRow';
 import { SolverControls } from '../components/SolverControls';
 import { PinGate } from '../components/PinGate';
-import { VaultStation, BulletinStation, LiveStation, SaveCouponModal } from '../components';
+import { VaultStation, BulletinStation, LiveStation, SaveCouponModal, NesineExportModal } from '../components';
 import { AppTab } from '../types';
 
 const navTabs: { id: AppTab; label: string; icon: string }[] = [
@@ -36,6 +36,7 @@ const DashboardContent: React.FC = () => {
   } = useToto();
 
   const [isSaveModalOpen, setIsSaveModalOpen] = React.useState<boolean>(false);
+  const [isNesineModalOpen, setIsNesineModalOpen] = React.useState<boolean>(false);
 
   // Telemetry statistics: strictly dynamic based on active picks & chosen mode
   const currentEstimate = estimates.modes[selectedMode] || estimates.modes['13G'];
@@ -199,8 +200,8 @@ const DashboardContent: React.FC = () => {
 
               {/* Kuponlarım Transition CTA Card */}
               {solution && solution.total_columns > 0 ? (
-                <div className="flex-1 bg-[#0a0f1d] border border-emerald-500/40 rounded-lg p-3 flex flex-col justify-between shadow-lg overflow-hidden">
-                  <div className="flex flex-col gap-2">
+                <div className="flex-1 bg-[#0a0f1d] border border-emerald-500/40 rounded-lg p-2.5 sm:p-3 flex flex-col justify-between shadow-lg overflow-y-auto">
+                  <div className="flex flex-col gap-1.5 sm:gap-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -215,27 +216,37 @@ const DashboardContent: React.FC = () => {
                       <span className="text-emerald-400 font-bold">Kalkan: %{covPct.toFixed(1)}</span>
                     </div>
                     <p className="text-[10px] text-[#94a3b8] leading-relaxed">
-                      Kupon yapraklarını incelemek, eklentisiz Yer İmi (Bookmarklet) ile Nesine sepetine dökmek veya .TXT / .CSV olarak indirmek için Kuponlarım istasyonuna geçin.
+                      Kupon yapraklarını 10'lu paket dinlenmeli konsol betiğiyle doğrudan Nesine Kayıtlı Kuponlarım'a aktarabilir veya kupon havuzunuza kaydedebilirsiniz.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex flex-col gap-1.5 mt-2">
                     <button
-                      onClick={() => setIsSaveModalOpen(true)}
-                      className="flex-1 py-2 px-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                      onClick={() => setIsNesineModalOpen(true)}
+                      className="w-full py-2 px-3 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
                     >
-                      <span>💾</span>
-                      <span>Kuponu Kaydet</span>
+                      <span>🚀</span>
+                      <span>Nesine'ye Otomatik Aktar (10'lu Batch)</span>
                     </button>
-                    <button
-                      onClick={() => setSelectedTab('vault')}
-                      className="flex-1 py-2 px-2.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-extrabold text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
-                    >
-                      <span>💼</span>
-                      <span>Kuponlarım ({totSheets}S) ➔</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setIsSaveModalOpen(true)}
+                        className="flex-1 py-1.5 px-2 bg-[#0f172a] hover:bg-[#1e293b] text-sky-300 hover:text-white border border-[#1e293b] font-bold text-[11px] rounded-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <span>💾</span>
+                        <span>Kuponu Kaydet</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedTab('vault')}
+                        className="flex-1 py-1.5 px-2 bg-[#06080e] hover:bg-[#1e293b] text-[#94a3b8] hover:text-white border border-[#1e293b] font-bold text-[11px] rounded-lg transition active:scale-98 cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <span>💼</span>
+                        <span>Kuponlarım ({totSheets}S) ➔</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
+
 
                 <div className="flex-1 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 flex flex-col justify-between text-xs text-[#94a3b8] overflow-hidden">
                   <div className="flex flex-col gap-1.5">
@@ -331,9 +342,20 @@ const DashboardContent: React.FC = () => {
           setToastMessage(`💾 Kupon "${name}" başarıyla kaydedildi.`);
         }}
       />
+
+      {/* Nesine Direct 10-Batch Export Modal */}
+      {solution && (
+        <NesineExportModal
+          isOpen={isNesineModalOpen}
+          onClose={() => setIsNesineModalOpen(false)}
+          columns={solution.compact_columns || solution.columns.map(c => c.join(''))}
+          pno={programInfo?.pNo}
+        />
+      )}
     </div>
   );
 };
+
 
 
 export default function Page() {
