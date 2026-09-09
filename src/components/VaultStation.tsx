@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useToto } from '../context/TotoContext';
+import { BookmarkletButton } from './BookmarkletButton';
 
 export const VaultStation: React.FC = () => {
   const { solution, matches, setToastMessage, setSelectedTab } = useToto() as any;
@@ -78,18 +79,6 @@ export const VaultStation: React.FC = () => {
     setToastMessage(`💾 ${filename} başarıyla indirildi.`);
   };
 
-  const handleOneClickNesine = () => {
-    const jsonStr = JSON.stringify(solution);
-    try {
-      localStorage.setItem("TOTO_AUTO_INJECT", jsonStr);
-    } catch {}
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(jsonStr).catch(() => {});
-    }
-    window.open("https://www.nesine.com/sportoto#auto_inject=1", "_blank");
-    setToastMessage("⚡ Kupon tarayıcı hafızasına yazıldı ve Nesine sekmesi açıldı!");
-  };
-
   return (
     <div className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-0.5 select-none text-xs">
       {/* 1. Header Metrics */}
@@ -115,19 +104,8 @@ export const VaultStation: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1">
         {/* Left Column (5 cols): Export Hub */}
         <div className="lg:col-span-5 flex flex-col gap-2.5 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3">
-          <h3 className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
-            <span>📤</span> Dışa Aktarım & Nesine Köprüsü
-          </h3>
-
-          {/* Direct Nesine 1-Click Injection CTA */}
-          <button
-            onClick={handleOneClickNesine}
-            className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-lg shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 text-xs transition active:scale-98 cursor-pointer"
-          >
-            <span>🚀</span>
-            <span>Tek Tıkla Nesine'ye Gönder</span>
-            <span className="text-[9px] font-normal bg-emerald-900/80 px-1.5 py-0.5 rounded border border-emerald-400/40">Tampermonkey</span>
-          </button>
+          {/* Native Non-Plugin Bookmarklet Hub (Nesine Köprüsü) */}
+          <BookmarkletButton />
 
           {/* Format Tabs */}
           <div className="flex items-center gap-1 bg-[#06080e] p-1 rounded border border-[#1e293b]">

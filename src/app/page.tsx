@@ -4,7 +4,6 @@ import React from 'react';
 import { TotoProvider, useToto } from '../context/TotoContext';
 import { MatchRow } from '../components/MatchRow';
 import { SolverControls } from '../components/SolverControls';
-import { BookmarkletButton } from '../components/BookmarkletButton';
 import { PinGate } from '../components/PinGate';
 import { VaultStation, BulletinStation, LiveStation } from '../components';
 import { AppTab } from '../types';
@@ -195,10 +194,50 @@ const DashboardContent: React.FC = () => {
                 <SolverControls />
               </div>
 
-              {/* Bookmarklet Hub & Vault Dispatch Card */}
-              <div className="flex-1 overflow-hidden">
-                <BookmarkletButton />
-              </div>
+              {/* Kuponlarım Transition CTA Card */}
+              {solution && solution.total_columns > 0 ? (
+                <div className="flex-1 bg-[#0a0f1d] border border-emerald-500/40 rounded-lg p-3 flex flex-col justify-between shadow-lg overflow-hidden">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Sistem Kuponu Üretildi ({solution.solver_mode === 'base_only' ? 'Ekonomik' : 'Akıllı + Sürpriz'})
+                      </span>
+                      <span className="text-[11px] font-mono text-[#38bdf8] font-extrabold">
+                        {totCols} Kolon / {totCost.toLocaleString()} TL
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-[#94a3b8] font-mono bg-[#06080e] px-2.5 py-1.5 rounded border border-[#1e293b]">
+                      <span>Nesine Kupon Sayısı: <strong className="text-amber-300">{totSheets} Sayfa</strong> (40 TL)</span>
+                      <span className="text-emerald-400 font-bold">Kalkan: %{covPct.toFixed(1)}</span>
+                    </div>
+                    <p className="text-[10px] text-[#94a3b8] leading-relaxed">
+                      Kupon yapraklarını incelemek, eklentisiz Yer İmi (Bookmarklet) ile Nesine sepetine dökmek veya .TXT / .CSV olarak indirmek için Kuponlarım istasyonuna geçin.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedTab('vault')}
+                    className="w-full mt-2 py-2.5 px-3 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-extrabold text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>💼</span>
+                    <span>Kuponlarım İstasyonuna Geç ({totSheets} Sayfa / {totCols} Kolon) ➔</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex-1 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 flex flex-col justify-between text-xs text-[#94a3b8] overflow-hidden">
+                  <div className="flex flex-col gap-1.5">
+                    <div className="font-bold text-[#38bdf8] text-[11px] flex items-center gap-1.5">
+                      <span>💡</span> Matematiksel Kalkan Kokpiti
+                    </div>
+                    <p className="text-[10.5px] leading-relaxed">
+                      Sol taraftaki 15 maçlık matriste tercihlerinizi belirledikten sonra <b>[🛡️ Ekonomik]</b> veya <b>[🚀 Akıllı Sürpriz Avcısı]</b> butonuna basarak kuponunuzu oluşturun.
+                    </p>
+                    <p className="text-[10px] text-[#64748b]">
+                      Üretilen kolonlar 40 TL'lik Nesine yapraklarına (A-B-C-D) paylaştırılarak <b>💼 Kuponlarım</b> istasyonunda eklentisiz Bookmarklet aktarımına hazır hale gelecektir.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Bloomberg Status Bar */}
               <div className="h-[24px] px-2.5 bg-[#0a0f1d] border border-[#1e293b] rounded flex items-center justify-between text-[9px] font-mono text-[#64748b] flex-shrink-0">

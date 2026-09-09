@@ -10,8 +10,9 @@ export interface BookmarkletButtonProps {
  * Begins strictly with: javascript:(async function()
  * Includes clipboard fallback handling via prompt().
  */
-export function generateBookmarkletCode(networkDelay: number = 750): string {
-  return `javascript:(async function(){const NETWORK_DELAY=${networkDelay};const sleep=ms=>new Promise(r=>setTimeout(r,ms));const dispatch=el=>{if(!el)return;['mouseover','mousedown','click','mouseup','change'].forEach(e=>el.dispatchEvent(new MouseEvent(e,{bubbles:true,cancelable:true})));};function findAddBtn(){const els=Array.from(document.querySelectorAll('button,a,div[role="button"]'));const match=els.find(el=>{(el.innerText||'').toLocaleLowerCase('tr-TR').trim().includes('sepete ekle')||(el.innerText||'').toLocaleLowerCase('tr-TR').trim().includes('hemen oyna');});return match||document.querySelector('.btn-add-basket,#btnSaveCoupon,button[data-action="add-basket"]');}let raw='';try{raw=await navigator.clipboard.readText();}catch(err){raw=prompt('Panoya erisilemedi. Lutfen kupon JSON kodunu buraya yapistiriniz:');}if(!raw)return alert('Kupon verisi bulunamadi!');let payload;try{payload=JSON.parse(raw);}catch(e){return alert('Panodaki veri gecerli bir kupon JSONi degil!');}let sheets=[];if(payload.sheets&&Array.isArray(payload.sheets)){sheets=payload.sheets;}else if(payload.compact&&Array.isArray(payload.cols)){const tot=Math.ceil(payload.cols.length/4);for(let s=0;s<tot;s++){sheets.push({A:payload.cols[s*4]||[],B:payload.cols[s*4+1]||[],C:payload.cols[s*4+2]||[],D:payload.cols[s*4+3]||[]});}}else if(Array.isArray(payload)){const tot=Math.ceil(payload.length/4);for(let s=0;s<tot;s++){sheets.push({A:payload[s*4]||[],B:payload[s*4+1]||[],C:payload[s*4+2]||[],D:payload[s*4+3]||[]});}}if(sheets.length===0)return alert('Kupon yapragi bulunamadi!');if(!confirm(sheets.length*40+' TL ('+(sheets.length*4)+' kolon) Nesine sepetine yuklensin mi?'))return;const letters=['A','B','C','D'];for(let s=0;s<sheets.length;s++){const sheet=sheets[s];for(let l=0;l<letters.length;l++){const char=letters[l];const picks=sheet[char];if(!picks)continue;for(let m=0;m<15;m++){const pick=picks[m];if(!pick)continue;const btn=document.querySelector('[data-mno="'+(m+1)+'"][data-col="'+char+'"][data-val="'+pick+'"]')||document.querySelector('input[data-m="'+(m+1)+'"][data-c="'+char+'"][data-v="'+pick+'"]')||document.querySelector('[data-match-index="'+m+'"][data-column="'+char+'"][data-choice="'+pick+'"]');if(btn){if(m===10)btn.scrollIntoView({behavior:'instant',block:'center'});dispatch(btn);await sleep(20);}}}await sleep(Math.floor(NETWORK_DELAY/2));if(s<sheets.length-1){const addBtn=findAddBtn();if(!addBtn)return alert('HATA: Sepete Ekle bulunamadi!');dispatch(addBtn);await sleep(NETWORK_DELAY);}}alert('✅ '+(sheets.length*40)+' TL kupon basariyla yuklendi!');})();`;
+export function generateBookmarkletCode(networkDelay: number = 750, compactCols?: string[]): string {
+  const embeddedCols = compactCols && compactCols.length > 0 ? JSON.stringify(compactCols) : 'null';
+  return `javascript:(async function(){const EMBEDDED=${embeddedCols};const NETWORK_DELAY=${networkDelay};const sleep=ms=>new Promise(r=>setTimeout(r,ms));const dispatch=el=>{if(!el)return;['mouseover','mousedown','click','mouseup','change'].forEach(e=>el.dispatchEvent(new MouseEvent(e,{bubbles:true,cancelable:true})));};function findAddBtn(){const els=Array.from(document.querySelectorAll('button,a,div[role="button"]'));const match=els.find(el=>{(el.innerText||'').toLocaleLowerCase('tr-TR').trim().includes('sepete ekle')||(el.innerText||'').toLocaleLowerCase('tr-TR').trim().includes('hemen oyna');});return match||document.querySelector('.btn-add-basket,#btnSaveCoupon,button[data-action="add-basket"]');}let payload=null;if(EMBEDDED&&Array.isArray(EMBEDDED)&&EMBEDDED.length>0){payload={compact:true,cols:EMBEDDED};}else{let raw='';try{raw=await navigator.clipboard.readText();}catch(err){raw=prompt('Panoya erisilemedi. Lutfen kupon JSON kodunu buraya yapistiriniz:');}if(!raw)return alert('Kupon verisi bulunamadi!');try{payload=JSON.parse(raw);}catch(e){return alert('Panodaki veri gecerli bir kupon JSONi degil!');}}let sheets=[];if(payload.sheets&&Array.isArray(payload.sheets)){sheets=payload.sheets;}else if(payload.compact&&Array.isArray(payload.cols)){const tot=Math.ceil(payload.cols.length/4);for(let s=0;s<tot;s++){sheets.push({A:payload.cols[s*4]||[],B:payload.cols[s*4+1]||[],C:payload.cols[s*4+2]||[],D:payload.cols[s*4+3]||[]});}}else if(Array.isArray(payload)){const tot=Math.ceil(payload.length/4);for(let s=0;s<tot;s++){sheets.push({A:payload[s*4]||[],B:payload[s*4+1]||[],C:payload[s*4+2]||[],D:payload[s*4+3]||[]});}}if(sheets.length===0)return alert('Kupon yapragi bulunamadi!');if(!confirm(sheets.length*40+' TL ('+(sheets.length*4)+' kolon) Nesine sepetine yuklensin mi?'))return;const letters=['A','B','C','D'];for(let s=0;s<sheets.length;s++){const sheet=sheets[s];for(let l=0;l<letters.length;l++){const char=letters[l];const picks=sheet[char];if(!picks)continue;for(let m=0;m<15;m++){const pick=picks[m];if(!pick)continue;const btn=document.querySelector('[data-mno="'+(m+1)+'"][data-col="'+char+'"][data-val="'+pick+'"]')||document.querySelector('input[data-m="'+(m+1)+'"][data-c="'+char+'"][data-v="'+pick+'"]')||document.querySelector('[data-match-index="'+m+'"][data-column="'+char+'"][data-choice="'+pick+'"]');if(btn){if(m===10)btn.scrollIntoView({behavior:'instant',block:'center'});dispatch(btn);await sleep(20);}}}await sleep(Math.floor(NETWORK_DELAY/2));if(s<sheets.length-1){const addBtn=findAddBtn();if(!addBtn)return alert('HATA: Sepete Ekle bulunamadi!');dispatch(addBtn);await sleep(NETWORK_DELAY);}}alert('✅ '+(sheets.length*40)+' TL kupon basariyla yuklendi!');})();`;
 }
 
 export const BookmarkletButton: React.FC<BookmarkletButtonProps> = ({ initialDelay }) => {
@@ -23,8 +24,8 @@ export const BookmarkletButton: React.FC<BookmarkletButtonProps> = ({ initialDel
   const activeDelay = initialDelay ?? networkDelay;
 
   const bookmarkletCode = useMemo(() => {
-    return generateBookmarkletCode(activeDelay);
-  }, [activeDelay]);
+    return generateBookmarkletCode(activeDelay, solution?.compact_columns);
+  }, [activeDelay, solution]);
 
   const handleCopyPlainText = () => {
     let textLines: string[] = [];
@@ -196,15 +197,6 @@ export const BookmarkletButton: React.FC<BookmarkletButtonProps> = ({ initialDel
       <div className="block lg:hidden text-[9.5px] text-[#64748b] mt-1.5 text-center">
         💡 Kuponları kopyalayıp Nesine mobil sepetine kolayca yapıştırabilirsiniz.
       </div>
-
-      {solution && solution.total_columns > 0 && (
-        <button
-          onClick={() => setSelectedTab('vault')}
-          className="w-full mt-2 py-1.5 px-2.5 bg-gradient-to-r from-emerald-900/60 to-cyan-950/70 hover:from-emerald-800/80 hover:to-cyan-900/80 text-emerald-300 hover:text-white border border-emerald-500/50 hover:border-emerald-400 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-98 cursor-pointer shadow-sm"
-        >
-          <span>💼 Kuponlarım İstasyonuna Git ({solution.total_sheets || Math.ceil(solution.total_columns / 4)} Sayfa / {solution.total_columns} Kolon) ➔</span>
-        </button>
-      )}
     </div>
   );
 };
