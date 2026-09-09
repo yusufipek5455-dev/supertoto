@@ -15,7 +15,7 @@ export function generateBookmarkletCode(networkDelay: number = 750): string {
 }
 
 export const BookmarkletButton: React.FC<BookmarkletButtonProps> = ({ initialDelay }) => {
-  const { networkDelay, setNetworkDelay, solution, setToastMessage } = useToto();
+  const { networkDelay, setNetworkDelay, solution, setToastMessage, setSelectedTab } = useToto();
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
@@ -196,6 +196,15 @@ export const BookmarkletButton: React.FC<BookmarkletButtonProps> = ({ initialDel
       <div className="block lg:hidden text-[9.5px] text-[#64748b] mt-1.5 text-center">
         💡 Kuponları kopyalayıp Nesine mobil sepetine kolayca yapıştırabilirsiniz.
       </div>
+
+      {solution && solution.total_columns > 0 && (
+        <button
+          onClick={() => setSelectedTab('vault')}
+          className="w-full mt-2 py-1.5 px-2.5 bg-gradient-to-r from-emerald-900/60 to-cyan-950/70 hover:from-emerald-800/80 hover:to-cyan-900/80 text-emerald-300 hover:text-white border border-emerald-500/50 hover:border-emerald-400 rounded-md text-[11px] font-bold flex items-center justify-center gap-1.5 transition active:scale-98 cursor-pointer shadow-sm"
+        >
+          <span>💼 Kuponlarım İstasyonuna Git ({solution.total_sheets || Math.ceil(solution.total_columns / 4)} Sayfa / {solution.total_columns} Kolon) ➔</span>
+        </button>
+      )}
     </div>
   );
 };

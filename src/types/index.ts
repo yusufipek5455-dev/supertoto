@@ -1,5 +1,19 @@
 export type PickOption = '1' | 'X' | '2';
 
+export type AppTab = 'creator' | 'bulletin' | 'vault' | 'live';
+
+export interface LiveMatchDetail {
+  no: number;
+  home: string;
+  away: string;
+  date: string;
+  status: 'NS' | 'LIVE' | 'HT' | 'FT';
+  minute: string;
+  score: string;
+  current_outcome: '1' | 'X' | '2' | '-';
+  is_official?: boolean;
+}
+
 export interface MatchData {
   id: number;
   date?: string;

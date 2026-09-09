@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
-import { MatchData, PickOption, GuaranteeMode, SolutionPayload, SolverStrategy, EstimatesMap } from '../types';
+import { MatchData, PickOption, GuaranteeMode, SolutionPayload, SolverStrategy, EstimatesMap, AppTab } from '../types';
+import { solveLocally } from '../lib/solver';
 
 export interface TotoContextType {
   matches: MatchData[];
@@ -35,6 +36,8 @@ export interface TotoContextType {
   } | null;
   isLoadingBulletin: boolean;
   fetchLiveBulletin: () => Promise<void>;
+  selectedTab: AppTab;
+  setSelectedTab: (tab: AppTab) => void;
 }
 
 function computeClientEstimates(matches: MatchData[]): EstimatesMap {
@@ -196,8 +199,21 @@ export const TotoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     endDate: "2026-09-14T21:45:00+03:00"
   });
   const [isLoadingBulletin, setIsLoadingBulletin] = useState<boolean>(false);
+  const [selectedTab, setSelectedTab] = useState<AppTab>('creator');
 
-  // Dynamic real-time calculation of raw combinations (1^x * 2^y * 3^z) and sphere volume models
+  // Restore active solution from localStorage on load if available
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('TOTO_ACTIVE_SOLUTION');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.columns && parsed.columns.length > 0) {
+          setSolution(parsed);
+          setTargetColumns(parsed.total_columns);
+        }
+      }
+    } catch {}
+  }, []);
   const estimates = useMemo(() => computeClientEstimates(matches), [matches]);
   const rawPoolSize = estimates.raw_combinations;
 
@@ -339,28 +355,47 @@ export const TotoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         booster_columns: null
       };
 
-      const res = await fetch('/api/solve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        throw new Error(`Solver error: ${res.status}`);
+      let data: any = null;
+      try {
+        const res = await fetch('/api/solve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (netErr) {
+        console.warn('Network solver error, falling back to local deterministic solver:', netErr);
       }
 
-      const data = await res.json();
+      // If serverless is unavailable or threw error, run deterministic local solver
+      if (!data || !data.columns || data.columns.length === 0) {
+        data = solveLocally(matches, selectedMode, chosenStrategy);
+      }
+
       setSolution(data);
       setTargetColumns(data.total_columns);
+      try {
+        localStorage.setItem('TOTO_ACTIVE_SOLUTION', JSON.stringify(data));
+      } catch {}
 
       if (chosenStrategy === 'auto_boost') {
         setToastMessage("Yapay zeka bülteni analiz edip en kârlı ekstra kolonları kupona ekledi.");
       } else {
         setToastMessage("Ekonomik sistem kuponu oluşturuldu (Minimum maliyet).");
       }
-    } catch (e) {
-      console.error(e);
-      setToastMessage("Kupon oluşturulurken bir hata oluştu.");
+    } catch (e: any) {
+      console.error('Solve error:', e);
+      // Failsafe local solver execution
+      try {
+        const fallbackData = solveLocally(matches, selectedMode, chosenStrategy);
+        setSolution(fallbackData);
+        setTargetColumns(fallbackData.total_columns);
+        setToastMessage("Kupon başarıyla oluşturuldu.");
+      } catch (innerErr) {
+        setToastMessage("Kupon oluşturulurken bir hata oluştu.");
+      }
     } finally {
       setIsSolving(false);
     }
@@ -395,7 +430,9 @@ export const TotoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         solveWithStrategy,
         programInfo,
         isLoadingBulletin,
-        fetchLiveBulletin
+        fetchLiveBulletin,
+        selectedTab,
+        setSelectedTab
       }}
     >
       {children}
