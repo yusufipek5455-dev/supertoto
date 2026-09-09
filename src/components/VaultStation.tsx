@@ -1,11 +1,11 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useToto } from '../context/TotoContext';
-import { BookmarkletButton } from './BookmarkletButton';
 
 export const VaultStation: React.FC = () => {
   const { solution, matches, setToastMessage, setSelectedTab } = useToto() as any;
   const [activeFormat, setActiveFormat] = useState<'txt' | 'compact' | 'std'>('txt');
   const [copiedType, setCopiedType] = useState<string | null>(null);
+  const [selectedSheetIdx, setSelectedSheetIdx] = useState<number>(0);
 
   if (!solution || !solution.columns || solution.columns.length === 0) {
     return (
@@ -28,8 +28,13 @@ export const VaultStation: React.FC = () => {
   const columns: string[][] = solution.columns;
   const totCols = solution.total_columns || columns.length;
   const totCost = solution.total_cost || totCols * 10;
-  const totSheets = solution.total_sheets || Math.ceil(totCols / 4);
+  const sheets = solution.sheets || [];
+  const totSheets = solution.total_sheets || (sheets.length > 0 ? sheets.length : Math.ceil(totCols / 4));
   const mode = solution.mode || '13G';
+
+  // Safe sheet index
+  const safeIdx = Math.min(Math.max(0, selectedSheetIdx), Math.max(0, sheets.length - 1));
+  const currentSheet = sheets[safeIdx] || null;
 
   // Export payloads
   const plainText = solution.compact_columns ? solution.compact_columns.join('\n') : columns.map(c => c.join('')).join('\n');
@@ -41,7 +46,7 @@ export const VaultStation: React.FC = () => {
     total_cost_tl: totCost
   });
   const stdJson = JSON.stringify({
-    sheets: solution.sheets || [],
+    sheets: sheets,
     total_columns: totCols,
     total_sheets: totSheets,
     total_cost_tl: totCost
@@ -106,10 +111,10 @@ export const VaultStation: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Main Grid: Left Export Hub / Right Sheets Table */}
+      {/* 2. Main Grid: Left Export Hub / Right Single Sheet Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1">
         {/* Left Column (5 cols): Export Hub */}
-        <div className="lg:col-span-5 flex flex-col gap-2 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3">
+        <div className="lg:col-span-5 flex flex-col gap-2.5 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3">
           <h3 className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
             <span>📤</span> Dışa Aktarım & Nesine Köprüsü
           </h3>
@@ -128,19 +133,19 @@ export const VaultStation: React.FC = () => {
           <div className="flex items-center gap-1 bg-[#06080e] p-1 rounded border border-[#1e293b]">
             <button
               onClick={() => setActiveFormat('txt')}
-              className={`flex-1 py-1 text-[10px] font-bold rounded transition ${activeFormat === 'txt' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
+              className={`flex-1 py-1 text-[10px] font-bold rounded transition cursor-pointer ${activeFormat === 'txt' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
             >
               📝 Düz (.TXT)
             </button>
             <button
               onClick={() => setActiveFormat('compact')}
-              className={`flex-1 py-1 text-[10px] font-bold rounded transition ${activeFormat === 'compact' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
+              className={`flex-1 py-1 text-[10px] font-bold rounded transition cursor-pointer ${activeFormat === 'compact' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
             >
               ⚡ Kompakt JSON
             </button>
             <button
               onClick={() => setActiveFormat('std')}
-              className={`flex-1 py-1 text-[10px] font-bold rounded transition ${activeFormat === 'std' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
+              className={`flex-1 py-1 text-[10px] font-bold rounded transition cursor-pointer ${activeFormat === 'std' ? 'bg-[#1e293b] text-[#38bdf8]' : 'text-[#94a3b8] hover:text-white'}`}
             >
               📄 Geniş JSON
             </button>
@@ -150,7 +155,7 @@ export const VaultStation: React.FC = () => {
           <div className="relative">
             <textarea
               readOnly
-              rows={5}
+              rows={6}
               value={activeFormat === 'txt' ? plainText : activeFormat === 'compact' ? compactJson : stdJson}
               className="w-full bg-[#06080e] border border-[#1e293b] rounded p-2 text-[10.5px] font-mono text-[#cbd5e1] resize-none focus:outline-none focus:border-[#38bdf8]"
             />
@@ -163,7 +168,7 @@ export const VaultStation: React.FC = () => {
           </div>
 
           {/* Quick Action Download Buttons */}
-          <div className="grid grid-cols-3 gap-1.5 pt-1">
+          <div className="grid grid-cols-3 gap-1.5">
             <button
               onClick={() => handleDownload(plainText, `supertoto_${mode}_${totCols}kolon.txt`, 'text/plain')}
               className="py-1.5 px-2 bg-[#0f172a] hover:bg-[#1e293b] text-[#f8fafc] border border-[#1e293b] rounded text-[10.5px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
@@ -184,56 +189,88 @@ export const VaultStation: React.FC = () => {
             </button>
           </div>
 
-          {/* Bookmarklet Bridge */}
-          <div className="pt-2 border-t border-[#1e293b]">
-            <BookmarkletButton />
+          <div className="p-2.5 bg-[#06080e] border border-[#1e293b] rounded text-[10px] text-[#94a3b8] leading-relaxed">
+            💡 <b className="text-white">İpucu:</b> {totCols} kolonluk kuponunuz <b className="text-emerald-400">{totSheets} adet 40 TL'lik sayfaya</b> kusursuz olarak paylaştırılmıştır. Tek tıkla Nesine'ye gönderebilir veya dosya olarak indirebilirsiniz.
           </div>
         </div>
 
-        {/* Right Column (7 cols): 40 TL Sheets Table Visualization */}
+        {/* Right Column (7 cols): Single 40 TL Sheet Inspector (Zero DOM Overload) */}
         <div className="lg:col-span-7 flex flex-col bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 overflow-hidden">
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b]">
-            <h3 className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
-              <span>📋</span> 40 TL Kupon Yaprakları (A-B-C-D)
-            </h3>
-            <span className="text-[10px] font-mono text-[#94a3b8]">
-              Toplam: {totSheets} Sayfa ({totCols} Kolon)
-            </span>
+          {/* Header & Sheet Paging Controls */}
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b] flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <h3 className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-wider flex items-center gap-1.5">
+                <span>📋</span> 40 TL Sayfa Önizleme
+              </h3>
+              <span className="text-[10px] font-mono text-[#94a3b8]">
+                (Sayfa {safeIdx + 1} / {totSheets})
+              </span>
+            </div>
+
+            {sheets.length > 1 && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  disabled={safeIdx <= 0}
+                  onClick={() => setSelectedSheetIdx(p => Math.max(0, p - 1))}
+                  className="px-2 py-1 bg-[#0f172a] hover:bg-[#1e293b] disabled:opacity-30 rounded text-[10.5px] text-[#cbd5e1] border border-[#1e293b] transition cursor-pointer"
+                >
+                  ◀ Önceki
+                </button>
+                <select
+                  value={safeIdx}
+                  onChange={(e) => setSelectedSheetIdx(Number(e.target.value))}
+                  className="bg-[#06080e] text-[#38bdf8] font-bold text-[10.5px] rounded px-2 py-1 border border-[#1e293b] focus:outline-none cursor-pointer"
+                >
+                  {sheets.map((_: any, idx: number) => (
+                    <option key={idx} value={idx}>
+                      Sayfa #{idx + 1} ({idx * 4 + 1}-{Math.min(totCols, (idx + 1) * 4)}. Kolonlar)
+                    </option>
+                  ))}
+                </select>
+                <button
+                  disabled={safeIdx >= sheets.length - 1}
+                  onClick={() => setSelectedSheetIdx(p => Math.min(sheets.length - 1, p + 1))}
+                  className="px-2 py-1 bg-[#0f172a] hover:bg-[#1e293b] disabled:opacity-30 rounded text-[10.5px] text-[#cbd5e1] border border-[#1e293b] transition cursor-pointer"
+                >
+                  Sonraki ▶
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Scrollable Sheets Container */}
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-            {solution.sheets && solution.sheets.map((sheet: any, sIdx: number) => (
-              <div key={sIdx} className="bg-[#06080e] border border-[#1e293b] rounded-lg overflow-hidden">
-                <div className="bg-[#0f172a] px-3 py-1.5 flex items-center justify-between border-b border-[#1e293b]">
-                  <span className="font-mono font-extrabold text-[#38bdf8] text-xs">
-                    KUPON #{sheet.sheet_id || (sIdx + 1)}
+          {/* Single Sheet Table (Lightweight: Exactly 15 Rows) */}
+          {currentSheet ? (
+            <div className="flex-1 flex flex-col bg-[#06080e] border border-[#1e293b] rounded-lg overflow-hidden">
+              <div className="bg-[#0f172a] px-3 py-1.5 flex items-center justify-between border-b border-[#1e293b]">
+                <span className="font-mono font-extrabold text-[#38bdf8] text-xs">
+                  KUPON #{currentSheet.sheet_id || (safeIdx + 1)}
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9.5px] font-mono text-emerald-400 font-bold bg-[#062419] px-2 py-0.5 rounded border border-emerald-500/30">
+                    40.00 TL
                   </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9.5px] font-mono text-emerald-400 font-bold bg-[#062419] px-2 py-0.5 rounded border border-emerald-500/30">
-                      40.00 TL
-                    </span>
-                    <span className="text-[9.5px] font-mono text-[#64748b]">4 Kolon</span>
-                  </div>
+                  <span className="text-[9.5px] font-mono text-[#64748b]">4 Kolon (A, B, C, D)</span>
                 </div>
+              </div>
 
+              <div className="flex-1 overflow-y-auto">
                 <table className="w-full text-center text-xs font-mono">
                   <thead>
-                    <tr className="bg-[#0a0f1d] text-[#64748b] text-[9.5px] border-b border-[#1e293b]/60">
+                    <tr className="bg-[#0a0f1d] text-[#64748b] text-[9.5px] border-b border-[#1e293b]/60 sticky top-0 z-10">
                       <th className="py-1 px-2 text-left">Maç</th>
-                      <th className="py-1">A</th>
-                      <th className="py-1">B</th>
-                      <th className="py-1">C</th>
-                      <th className="py-1">D</th>
+                      <th className="py-1 text-[#38bdf8]">Harf A</th>
+                      <th className="py-1 text-[#38bdf8]">Harf B</th>
+                      <th className="py-1 text-[#38bdf8]">Harf C</th>
+                      <th className="py-1 text-[#38bdf8]">Harf D</th>
                     </tr>
                   </thead>
                   <tbody>
                     {Array.from({ length: 15 }, (_, mIdx) => {
                       const matchName = matches[mIdx] ? `${matches[mIdx].home} - ${matches[mIdx].away}` : `Maç #${mIdx + 1}`;
-                      const pickA = sheet.A?.[mIdx] || '-';
-                      const pickB = sheet.B?.[mIdx] || '-';
-                      const pickC = sheet.C?.[mIdx] || '-';
-                      const pickD = sheet.D?.[mIdx] || '-';
+                      const pickA = currentSheet.A?.[mIdx] || '-';
+                      const pickB = currentSheet.B?.[mIdx] || '-';
+                      const pickC = currentSheet.C?.[mIdx] || '-';
+                      const pickD = currentSheet.D?.[mIdx] || '-';
 
                       const getPill = (val: string) => {
                         if (val === '1') return <span className="inline-block w-5 h-5 leading-5 rounded bg-sky-950/80 text-sky-300 font-extrabold border border-sky-600/50">1</span>;
@@ -244,7 +281,7 @@ export const VaultStation: React.FC = () => {
 
                       return (
                         <tr key={mIdx} className="border-b border-[#1e293b]/40 hover:bg-[#0f172a]/50">
-                          <td className="py-1 px-2 text-left text-[10px] text-[#94a3b8] truncate max-w-[140px]">
+                          <td className="py-1 px-2 text-left text-[10px] text-[#94a3b8] truncate max-w-[160px]">
                             <span className="font-bold text-[#64748b] mr-1.5">{(mIdx + 1).toString().padStart(2, '0')}</span>
                             {matchName}
                           </td>
@@ -258,8 +295,12 @@ export const VaultStation: React.FC = () => {
                   </tbody>
                 </table>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-xs text-[#64748b]">
+              Sayfa bulunamadı.
+            </div>
+          )}
         </div>
       </div>
     </div>

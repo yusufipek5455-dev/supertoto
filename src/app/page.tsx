@@ -131,11 +131,6 @@ const DashboardContent: React.FC = () => {
               >
                 <span>{tab.icon}</span>
                 <span>{tab.label}</span>
-                {tab.id === 'vault' && totCols > 0 && (
-                  <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-500/50 font-mono">
-                    {totCols}
-                  </span>
-                )}
               </button>
             );
           })}
