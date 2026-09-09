@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest & test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local data & portfolio files
+data/
+*.log
+
+# Scratch scripts
+scratch/
+
+# Environments
+env/
+venv/
+.venv/
+ENV/
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+.vercel/
+temp_chrome_profile*/
+
+# OS metadata
+.DS_Store
+Thumbs.db

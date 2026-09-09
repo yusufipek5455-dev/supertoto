@@ -1,0 +1,515 @@
+{
+  "current_view": "🎯 Kupon Oluşturucu",
+  "fixtures": [
+    {
+      "no": 1,
+      "date": "11.09 20:00",
+      "home": "Beşiktaş A.Ş.",
+      "away": "Erzurumspor FK",
+      "odds": [
+        90.0,
+        7.0,
+        3.0
+      ]
+    },
+    {
+      "no": 2,
+      "date": "12.09 17:00",
+      "home": "Eyüpspor",
+      "away": "Çaykur Rizespor A.Ş.",
+      "odds": [
+        22.0,
+        28.0,
+        50.0
+      ]
+    },
+    {
+      "no": 3,
+      "date": "12.09 17:00",
+      "home": "Samsunspor A.Ş.",
+      "away": "Çorum FK",
+      "odds": [
+        57.0,
+        23.0,
+        20.0
+      ]
+    },
+    {
+      "no": 4,
+      "date": "12.09 20:00",
+      "home": "Alanyaspor",
+      "away": "Göztepe A.Ş.",
+      "odds": [
+        41.0,
+        30.0,
+        29.0
+      ]
+    },
+    {
+      "no": 5,
+      "date": "12.09 20:00",
+      "home": "Konyaspor",
+      "away": "Trabzonspor A.Ş.",
+      "odds": [
+        15.0,
+        19.0,
+        66.0
+      ]
+    },
+    {
+      "no": 6,
+      "date": "13.09 17:00",
+      "home": "Gençlerbirliği",
+      "away": "Kasimpasa A.Ş.",
+      "odds": [
+        46.0,
+        29.0,
+        25.0
+      ]
+    },
+    {
+      "no": 7,
+      "date": "13.09 20:00",
+      "home": "Amed Sportif",
+      "away": "Başakşehir FK",
+      "odds": [
+        35.0,
+        27.0,
+        38.0
+      ]
+    },
+    {
+      "no": 8,
+      "date": "13.09 20:00",
+      "home": "Galatasaray A.Ş.",
+      "away": "Kocaelispor",
+      "odds": [
+        77.0,
+        16.0,
+        7.0
+      ]
+    },
+    {
+      "no": 9,
+      "date": "14.09 20:00",
+      "home": "Gaziantep F.K. A.S.",
+      "away": "Fenerbahçe A.Ş.",
+      "odds": [
+        11.0,
+        16.0,
+        73.0
+      ]
+    },
+    {
+      "no": 10,
+      "date": "12.09 16:30",
+      "home": "Augsburg",
+      "away": "B. Leverkusen",
+      "odds": [
+        24.0,
+        22.0,
+        54.0
+      ]
+    },
+    {
+      "no": 11,
+      "date": "11.09 21:45",
+      "home": "Rennes",
+      "away": "Marsilya",
+      "odds": [
+        35.0,
+        29.0,
+        36.0
+      ]
+    },
+    {
+      "no": 12,
+      "date": "12.09 17:00",
+      "home": "Chelsea",
+      "away": "Hull City",
+      "odds": [
+        81.0,
+        12.0,
+        7.0
+      ]
+    },
+    {
+      "no": 13,
+      "date": "13.09 18:30",
+      "home": "Manchester United",
+      "away": "Manchester City",
+      "odds": [
+        25.0,
+        26.0,
+        49.0
+      ]
+    },
+    {
+      "no": 14,
+      "date": "13.09 17:15",
+      "home": "Levante",
+      "away": "Barcelona",
+      "odds": [
+        6.0,
+        9.0,
+        85.0
+      ]
+    },
+    {
+      "no": 15,
+      "date": "12.09 19:00",
+      "home": "Lazio",
+      "away": "AC Milan",
+      "odds": [
+        26.0,
+        30.0,
+        44.0
+      ]
+    }
+  ],
+  "program_info": {
+    "pNo": 357,
+    "week": 141236,
+    "status": true,
+    "startDate": "2026-09-11T19:55:00+03:00",
+    "endDate": "2026-09-14T21:45:00+03:00"
+  },
+  "user_picks": {
+    "0": [
+      "1"
+    ],
+    "1": [
+      "2",
+      "X"
+    ],
+    "2": [
+      "1"
+    ],
+    "3": [
+      "1",
+      "X",
+      "2"
+    ],
+    "4": [
+      "2"
+    ],
+    "5": [
+      "1",
+      "X",
+      "2"
+    ],
+    "6": [
+      "1",
+      "X",
+      "2"
+    ],
+    "7": [
+      "1"
+    ],
+    "8": [
+      "2"
+    ],
+    "9": [
+      "1",
+      "2",
+      "X"
+    ],
+    "10": [
+      "1",
+      "2",
+      "X"
+    ],
+    "11": [
+      "1",
+      "X",
+      "2"
+    ],
+    "12": [
+      "1",
+      "X",
+      "2"
+    ],
+    "13": [
+      "2"
+    ],
+    "14": [
+      "2",
+      "X"
+    ]
+  },
+  "solution": null,
+  "saved_portfolios": {
+    "Hafta_40TL": {
+      "columns": [
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ]
+      ],
+      "sheets": [
+        {
+          "A": [
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "B": [
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "C": [
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "D": [
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ]
+        }
+      ],
+      "total_columns": 4,
+      "total_sheets": 1,
+      "total_cost": 40
+    }
+  },
+  "live_scores": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "live_match_details": [
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    },
+    {
+      "status": "NS",
+      "minute": "-",
+      "score": "- - -",
+      "outcome": "-",
+      "is_official": false
+    }
+  ],
+  "selected_sheet_idx": 0
+}
