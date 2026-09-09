@@ -76,3 +76,16 @@ export interface EstimatesMap {
   triples: number;
   modes: Record<GuaranteeMode, ModeEstimate>;
 }
+
+export interface SavedCoupon {
+  id: string;
+  name: string;
+  createdAt: string;
+  week: string | number;
+  columnsCount: number;
+  columns: string[][];
+  compact_columns?: string[];
+  mode?: GuaranteeMode;
+  total_cost?: number;
+}
+

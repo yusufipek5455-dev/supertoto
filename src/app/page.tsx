@@ -5,7 +5,7 @@ import { TotoProvider, useToto } from '../context/TotoContext';
 import { MatchRow } from '../components/MatchRow';
 import { SolverControls } from '../components/SolverControls';
 import { PinGate } from '../components/PinGate';
-import { VaultStation, BulletinStation, LiveStation } from '../components';
+import { VaultStation, BulletinStation, LiveStation, SaveCouponModal } from '../components';
 import { AppTab } from '../types';
 
 const navTabs: { id: AppTab; label: string; icon: string }[] = [
@@ -31,8 +31,11 @@ const DashboardContent: React.FC = () => {
     selectedTab,
     setSelectedTab,
     toastMessage,
+    setToastMessage,
     clearToast
   } = useToto();
+
+  const [isSaveModalOpen, setIsSaveModalOpen] = React.useState<boolean>(false);
 
   // Telemetry statistics: strictly dynamic based on active picks & chosen mode
   const currentEstimate = estimates.modes[selectedMode] || estimates.modes['13G'];
@@ -215,15 +218,25 @@ const DashboardContent: React.FC = () => {
                       Kupon yapraklarını incelemek, eklentisiz Yer İmi (Bookmarklet) ile Nesine sepetine dökmek veya .TXT / .CSV olarak indirmek için Kuponlarım istasyonuna geçin.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setSelectedTab('vault')}
-                    className="w-full mt-2 py-2.5 px-3 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-extrabold text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <span>💼</span>
-                    <span>Kuponlarım İstasyonuna Geç ({totSheets} Sayfa / {totCols} Kolon) ➔</span>
-                  </button>
+                  <div className="flex items-center gap-2 mt-2">
+                    <button
+                      onClick={() => setIsSaveModalOpen(true)}
+                      className="flex-1 py-2 px-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <span>💾</span>
+                      <span>Kuponu Kaydet</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedTab('vault')}
+                      className="flex-1 py-2 px-2.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-extrabold text-xs rounded-lg shadow-md transition active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <span>💼</span>
+                      <span>Kuponlarım ({totSheets}S) ➔</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
+
                 <div className="flex-1 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 flex flex-col justify-between text-xs text-[#94a3b8] overflow-hidden">
                   <div className="flex flex-col gap-1.5">
                     <div className="font-bold text-[#38bdf8] text-[11px] flex items-center gap-1.5">
@@ -307,9 +320,21 @@ const DashboardContent: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Save Coupon Modal */}
+      <SaveCouponModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        solution={solution}
+        week={programInfo?.week}
+        onSuccess={(name) => {
+          setToastMessage(`💾 Kupon "${name}" başarıyla kaydedildi.`);
+        }}
+      />
     </div>
   );
 };
+
 
 export default function Page() {
   return (

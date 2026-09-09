@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useToto } from '../context/TotoContext';
 import { BookmarkletButton } from './BookmarkletButton';
+import { SaveCouponModal } from './SaveCouponModal';
 
 export const VaultStation: React.FC = () => {
-  const { solution, matches, setToastMessage, setSelectedTab } = useToto() as any;
+  const { solution, matches, setToastMessage, setSelectedTab, programInfo } = useToto() as any;
   const [activeFormat, setActiveFormat] = useState<'txt' | 'compact' | 'std'>('txt');
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [selectedSheetIdx, setSelectedSheetIdx] = useState<number>(0);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
 
   if (!solution || !solution.columns || solution.columns.length === 0) {
     return (
@@ -145,8 +147,18 @@ export const VaultStation: React.FC = () => {
             </button>
           </div>
 
+          {/* Save to Pool CTA */}
+          <button
+            onClick={() => setIsSaveModalOpen(true)}
+            className="w-full py-2 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-lg shadow-md flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer text-xs"
+          >
+            <span>💾</span>
+            <span>Kuponu Kaydet (Havuza Ekle)</span>
+          </button>
+
           {/* Quick Action Download Buttons */}
           <div className="grid grid-cols-3 gap-1.5">
+
             <button
               onClick={() => handleDownload(plainText, `supertoto_${mode}_${totCols}kolon.txt`, 'text/plain')}
               className="py-1.5 px-2 bg-[#0f172a] hover:bg-[#1e293b] text-[#f8fafc] border border-[#1e293b] rounded text-[10.5px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
@@ -281,6 +293,18 @@ export const VaultStation: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Save Coupon Modal */}
+      <SaveCouponModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        solution={solution}
+        week={programInfo?.week}
+        onSuccess={(name) => {
+          setToastMessage(`💾 Kupon "${name}" başarıyla kaydedildi.`);
+        }}
+      />
     </div>
   );
 };
+
