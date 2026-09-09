@@ -2,6 +2,7 @@ export type PickOption = '1' | 'X' | '2';
 
 export interface MatchData {
   id: number;
+  date?: string;
   home: string;
   away: string;
   odds: [number, number, number]; // [1, X, 2]

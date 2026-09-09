@@ -143,7 +143,32 @@ def _handle_solve(req: SolveRequest) -> SolveResponse:
     )
 
 
-# Dual route registration for Vercel (/api/solve and /solve)
+
+def _handle_bulletin():
+    try:
+        from state_manager import fetch_live_bulletin_from_nesine
+        res = fetch_live_bulletin_from_nesine(timeout=5.0)
+        return res
+    except Exception as e:
+        from state_manager import DEFAULT_FIXTURES
+        return {
+            "success": True,
+            "fixtures": DEFAULT_FIXTURES,
+            "program_info": {"pNo": "357", "week": "141236"},
+            "is_fallback": True,
+            "fallback_source": f"Yerel Fikstür Yedeği ({str(e)})",
+            "error": str(e)
+        }
+
+
+# Dual route registration for Vercel (/api/bulletin and /bulletin)
+@app.get("/api/bulletin")
+@app.get("/bulletin")
+def get_bulletin():
+    return _handle_bulletin()
+
+
+# Dual route registration for Vercel (/api/health and /health)
 @app.get("/api/health")
 @app.get("/health")
 def healthcheck():
@@ -154,3 +179,4 @@ def healthcheck():
 @app.post("/solve", response_model=SolveResponse)
 def solve_portfolio(req: SolveRequest):
     return _handle_solve(req)
+

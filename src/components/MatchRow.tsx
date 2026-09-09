@@ -23,11 +23,16 @@ export const MatchRow: React.FC<MatchRowProps> = ({ match, index }) => {
           {(index + 1).toString().padStart(2, '0')}
         </div>
 
-        {/* Embedded Team Names */}
-        <div className="flex-1 min-w-0 truncate">
+        {/* Embedded Team Names & Date */}
+        <div className="flex-1 min-w-0 flex items-center justify-between gap-1 truncate">
           <span className="text-xs sm:text-[11px] font-semibold text-[#f8fafc] truncate tracking-tight">
             {match.home} <span className="text-[#64748b] font-normal">–</span> {match.away}
           </span>
+          {match.date && (
+            <span className="text-[9px] font-mono text-[#64748b] hidden sm:inline flex-shrink-0 pr-1">
+              {match.date}
+            </span>
+          )}
         </div>
       </div>
 

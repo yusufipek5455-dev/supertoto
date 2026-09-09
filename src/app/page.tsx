@@ -16,13 +16,16 @@ const DashboardContent: React.FC = () => {
     estimates,
     rawPoolSize,
     solveWithStrategy,
-    isSolving
+    isSolving,
+    programInfo,
+    isLoadingBulletin,
+    fetchLiveBulletin
   } = useToto();
 
-  // Telemetry statistics
+  // Telemetry statistics: strictly dynamic based on active picks & chosen mode
   const currentEstimate = estimates.modes[selectedMode] || estimates.modes['13G'];
   const baselineCols = currentEstimate.columns;
-  const totCols = solution ? solution.total_columns : targetColumns;
+  const totCols = solution ? solution.total_columns : baselineCols;
   const totSheets = Math.ceil(totCols / 4);
   const totCost = totCols * 10;
   const covPct = solution ? solution.coverage_pct : 100.0;
@@ -66,6 +69,17 @@ const DashboardContent: React.FC = () => {
             <span className="text-cyan-400 font-bold">%{covPct.toFixed(1)}</span>
           </div>
 
+          {/* Nesine Live Fetch Button */}
+          <button
+            onClick={() => fetchLiveBulletin()}
+            disabled={isLoadingBulletin}
+            title="Nesine'den Güncel Bülteni ve Oranları Çek"
+            className="flex items-center gap-1 bg-[#0f172a] hover:bg-[#1e293b] text-emerald-400 hover:text-white px-2 sm:px-2.5 py-1 rounded border border-emerald-500/40 text-[10.5px] sm:text-[11px] font-bold transition cursor-pointer"
+          >
+            <span className={isLoadingBulletin ? "animate-spin inline-block" : ""}>🌐</span>
+            <span className="hidden sm:inline">{isLoadingBulletin ? "Çekiliyor..." : "Bülteni Çek"}</span>
+          </button>
+
           <a 
             href="https://www.nesine.com/sportoto" 
             target="_blank" 
@@ -96,9 +110,12 @@ const DashboardContent: React.FC = () => {
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#38bdf8]">
                 📋 15 Maç Tercih Matrisi
               </span>
-              <span className="text-[10px] text-[#64748b] font-mono hidden sm:inline">
-                (Sıfır Hata Payı)
-              </span>
+              <div className="flex items-center gap-1.5 text-[9.5px] font-mono text-[#94a3b8]">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+                <span>Program #{programInfo?.pNo || '357'}</span>
+                <span>•</span>
+                <span>Hafta {programInfo?.week || '141236'}</span>
+              </div>
             </div>
             <div className="text-[9.5px] sm:text-[10px] font-mono text-[#64748b]">
               <span className="lg:hidden">44px Dokunmatik Alan</span>

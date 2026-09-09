@@ -1,4 +1,7 @@
-import streamlit as st
+try:
+    import streamlit as st
+except ImportError:
+    st = None
 import re
 import time
 import os

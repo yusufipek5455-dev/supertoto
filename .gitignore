@@ -26,6 +26,7 @@ node_modules/
 .next/
 out/
 build/
+*.tsbuildinfo
 frontend/node_modules/
 frontend/.next/
 frontend/out/
