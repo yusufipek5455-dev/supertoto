@@ -9,21 +9,21 @@ import json
 from datetime import datetime
 
 DEFAULT_FIXTURES = [
-    {"no": 1, "date": "11.09 20:00", "home": "Beşiktaş A.Ş.", "away": "Erzurumspor FK", "odds": [90.0, 7.0, 3.0]},
-    {"no": 2, "date": "12.09 17:00", "home": "Eyüpspor", "away": "Çaykur Rizespor A.Ş.", "odds": [23.0, 27.0, 50.0]},
-    {"no": 3, "date": "12.09 17:00", "home": "Samsunspor A.Ş.", "away": "Çorum FK", "odds": [58.0, 23.0, 19.0]},
-    {"no": 4, "date": "12.09 20:00", "home": "Alanyaspor", "away": "Göztepe A.Ş.", "odds": [42.0, 31.0, 27.0]},
-    {"no": 5, "date": "12.09 20:00", "home": "Konyaspor", "away": "Trabzonspor A.Ş.", "odds": [15.0, 18.0, 67.0]},
-    {"no": 6, "date": "13.09 17:00", "home": "Gençlerbirliği", "away": "Kasımpaşa A.Ş.", "odds": [46.0, 28.0, 26.0]},
-    {"no": 7, "date": "13.09 20:00", "home": "Amed Sportif", "away": "Başakşehir FK", "odds": [35.0, 27.0, 38.0]},
-    {"no": 8, "date": "13.09 20:00", "home": "Galatasaray A.Ş.", "away": "Kocaelispor", "odds": [79.0, 15.0, 6.0]},
-    {"no": 9, "date": "14.09 20:00", "home": "Gaziantep F.K. A.Ş.", "away": "Fenerbahçe A.Ş.", "odds": [11.0, 15.0, 74.0]},
-    {"no": 10, "date": "12.09 16:30", "home": "Augsburg", "away": "B. Leverkusen", "odds": [24.0, 21.0, 55.0]},
-    {"no": 11, "date": "11.09 21:45", "home": "Rennes", "away": "Marsilya", "odds": [32.0, 28.0, 40.0]},
-    {"no": 12, "date": "12.09 17:00", "home": "Chelsea", "away": "Hull City", "odds": [83.0, 11.0, 6.0]},
-    {"no": 13, "date": "13.09 18:30", "home": "Manchester United", "away": "Manchester City", "odds": [23.0, 26.0, 51.0]},
-    {"no": 14, "date": "13.09 17:15", "home": "Levante", "away": "Barcelona", "odds": [6.0, 7.0, 87.0]},
-    {"no": 15, "date": "12.09 19:00", "home": "Lazio", "away": "AC Milan", "odds": [25.0, 29.0, 46.0]},
+    {"no": 1, "date": "18.09 20:00", "home": "Kasımpaşa A.Ş.", "away": "Konyaspor", "odds": [47.0, 32.0, 21.0]},
+    {"no": 2, "date": "18.09 20:00", "home": "Kocaelispor", "away": "Gaziantep F.K. A.Ş.", "odds": [60.0, 24.0, 16.0]},
+    {"no": 3, "date": "19.09 17:00", "home": "Çorum FK", "away": "Alanyaspor", "odds": [55.0, 26.0, 19.0]},
+    {"no": 4, "date": "19.09 17:00", "home": "Başakşehir FK", "away": "Gençlerbirliği", "odds": [67.0, 18.0, 15.0]},
+    {"no": 5, "date": "19.09 20:00", "home": "Trabzonspor A.Ş.", "away": "Galatasaray A.Ş.", "odds": [24.0, 25.0, 51.0]},
+    {"no": 6, "date": "19.09 20:00", "home": "Erzurumspor FK", "away": "Samsunspor A.Ş.", "odds": [41.0, 30.0, 29.0]},
+    {"no": 7, "date": "20.09 17:00", "home": "Fenerbahçe A.Ş.", "away": "Eyüpspor", "odds": [89.0, 6.0, 5.0]},
+    {"no": 8, "date": "20.09 20:00", "home": "Amed Sportif Faliyetler", "away": "Beşiktaş A.Ş.", "odds": [15.0, 23.0, 62.0]},
+    {"no": 9, "date": "20.09 20:00", "home": "Göztepe A.Ş.", "away": "Çaykur Rizespor A.Ş.", "odds": [57.0, 22.0, 21.0]},
+    {"no": 10, "date": "19.09 16:30", "home": "Stuttgart", "away": "B. Dortmund", "odds": [19.0, 19.0, 62.0]},
+    {"no": 11, "date": "19.09 19:30", "home": "B. Leverkusen", "away": "Leipzig", "odds": [71.0, 15.0, 14.0]},
+    {"no": 12, "date": "20.09 16:00", "home": "Tottenham", "away": "Aston Villa", "odds": [43.0, 31.0, 26.0]},
+    {"no": 13, "date": "20.09 18:30", "home": "Newcastle United", "away": "Hull City", "odds": [56.0, 26.0, 18.0]},
+    {"no": 14, "date": "20.09 22:00", "home": "Atletico Madrid", "away": "Real Madrid", "odds": [16.0, 19.0, 65.0]},
+    {"no": 15, "date": "20.09 21:45", "home": "AS Roma", "away": "Inter", "odds": [22.0, 28.0, 50.0]},
 ]
 
 def format_fixtures(raw_list):
@@ -273,11 +273,11 @@ def fetch_live_bulletin_from_nesine(timeout: float = 4.0, max_retries: int = 3):
         "success": True,
         "fixtures": DEFAULT_FIXTURES,
         "program_info": {
-            "pNo": 357,
-            "week": 141236,
+            "pNo": 358,
+            "week": 141693,
             "status": True,
-            "startDate": "2026-09-11T19:55:00+03:00",
-            "endDate": "2026-09-14T21:45:00+03:00"
+            "startDate": "2026-09-18T19:55:00+03:00",
+            "endDate": "2026-09-20T21:45:00+03:00"
         },
         "is_fallback": True,
         "fallback_source": "Sistem Varsayılan Fikstürü",

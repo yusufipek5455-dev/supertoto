@@ -154,9 +154,42 @@ def _handle_bulletin():
         return {
             "success": True,
             "fixtures": DEFAULT_FIXTURES,
-            "program_info": {"pNo": "357", "week": "141236"},
+            "program_info": {"pNo": "358", "week": "141693"},
             "is_fallback": True,
             "fallback_source": f"Yerel Fikstür Yedeği ({str(e)})",
+            "error": str(e)
+        }
+
+
+def _handle_live():
+    try:
+        from live_tracker import fetch_live_toto_scores
+        matches = fetch_live_toto_scores()
+        return {
+            "success": True,
+            "matches": matches,
+            "is_live": True
+        }
+    except Exception as e:
+        from state_manager import DEFAULT_FIXTURES
+        fallback = [
+            {
+                "no": f["no"],
+                "home": f["home"],
+                "away": f["away"],
+                "date": f.get("date", ""),
+                "status": "NS",
+                "minute": "-",
+                "score": "- - -",
+                "current_outcome": "-",
+                "is_official": False
+            }
+            for f in DEFAULT_FIXTURES
+        ]
+        return {
+            "success": True,
+            "matches": fallback,
+            "is_live": False,
             "error": str(e)
         }
 
@@ -166,6 +199,13 @@ def _handle_bulletin():
 @app.get("/bulletin")
 def get_bulletin():
     return _handle_bulletin()
+
+
+# Dual route registration for Vercel (/api/live and /live)
+@app.get("/api/live")
+@app.get("/live")
+def get_live():
+    return _handle_live()
 
 
 # Dual route registration for Vercel (/api/health and /health)
@@ -179,4 +219,5 @@ def healthcheck():
 @app.post("/solve", response_model=SolveResponse)
 def solve_portfolio(req: SolveRequest):
     return _handle_solve(req)
+
 

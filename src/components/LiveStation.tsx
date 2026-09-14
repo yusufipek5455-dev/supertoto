@@ -3,10 +3,7 @@ import { useToto } from '../context/TotoContext';
 import { LiveMatchDetail, SavedCoupon } from '../types';
 import { getSavedCoupons, deleteSavedCoupon, SAVED_COUPONS_EVENT } from '../lib/storage';
 import { SaveCouponModal } from './SaveCouponModal';
-
-function formatTL(val: number): string {
-  return val.toLocaleString('tr-TR');
-}
+import { calculateRealisticPrize, formatPrizeTL, MatchProbability, VOLUME_PRESETS, VolumePresetKey } from '../lib/prizeEngine';
 
 export const LiveStation: React.FC = () => {
   const { solution, matches, setToastMessage, programInfo } = useToto() as any;
@@ -21,6 +18,20 @@ export const LiveStation: React.FC = () => {
 
   // What-If Manual Overrides: matchIndex -> '1' | 'X' | '2'
   const [manualOverrides, setManualOverrides] = useState<Record<number, '1' | 'X' | '2'>>({});
+
+  // Realistic Pari-Mutuel Prize Settings (Volume Presets & Custom Revenue/Carryover)
+  const [selectedPreset, setSelectedPreset] = useState<VolumePresetKey>('normal');
+  const [totalRevenue, setTotalRevenue] = useState<number>(45000000); // 45M TL (~4.5M kolon)
+  const [carryover, setCarryover] = useState<number>(0);
+  const [showPrizeSettings, setShowPrizeSettings] = useState<boolean>(false);
+
+  const handleSelectPreset = (key: Exclude<VolumePresetKey, 'custom'>) => {
+    setSelectedPreset(key);
+    const p = VOLUME_PRESETS[key];
+    setTotalRevenue(p.revenue);
+    setCarryover(p.defaultCarryover);
+    setToastMessage(`İkramiye Hacmi: ${p.label} (${(p.revenue / 1000000)}M TL) ayarlandı.`);
+  };
 
   // Load saved coupons from localStorage on mount & listen for changes
   const refreshSavedCoupons = useCallback(() => {
@@ -44,7 +55,7 @@ export const LiveStation: React.FC = () => {
   const fetchLiveScores = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/live');
+      const res = await fetch(`/api/live?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.matches && data.matches.length === 15) {
@@ -207,62 +218,59 @@ export const LiveStation: React.FC = () => {
 
   const top4 = scoredColumns.slice(0, 4);
 
-  // Surprise score and prize pool ranges
-  const { climateBadge, climateColor, p15, p14, p13, p12, est15Str, est14Str, est13Str, est12Str } = useMemo(() => {
-    let surpriseScore = 0;
-    for (const idx of determinedIndices) {
-      const outcome = matchOutcomes[idx].outcome;
-      const matchOdds = matches[idx]?.odds || [33.3, 33.3, 33.4];
-      const oddVal = outcome === '1' ? matchOdds[0] : outcome === 'X' ? matchOdds[1] : matchOdds[2];
-      if (oddVal < 25) surpriseScore += 2;
-      else if (oddVal < 35) surpriseScore += 1;
-    }
+  // Convert match odds into normalized probability maps [{ '1': p1, 'X': pX, '2': p2 }, ...]
+  const matchProbabilities: MatchProbability[] = useMemo(() => {
+    return Array.from({ length: 15 }, (_, i) => {
+      const m = matches?.[i];
+      const rawOdds = m?.odds;
+      if (rawOdds && rawOdds.length === 3) {
+        const sum = (rawOdds[0] || 0) + (rawOdds[1] || 0) + (rawOdds[2] || 0);
+        if (sum > 0) {
+          return {
+            '1': (rawOdds[0] || 0) / sum,
+            'X': (rawOdds[1] || 0) / sum,
+            '2': (rawOdds[2] || 0) / sum
+          };
+        }
+      }
+      return { '1': 0.3333, 'X': 0.3333, '2': 0.3334 };
+    });
+  }, [matches]);
 
-    if (surpriseScore >= 4) {
-      return {
-        climateBadge: '🔥 ÇOK YÜKSEK İKRAMİYE (Devir Riski)',
-        climateColor: 'text-rose-400',
-        p15: [5000000, 15000000],
-        p14: [80000, 450000],
-        p13: [8000, 35000],
-        p12: [800, 3000],
-        est15Str: 'Devir / 5.000.000+ TL',
-        est14Str: '80.000 TL - 450.000 TL',
-        est13Str: '8.000 TL - 35.000 TL',
-        est12Str: '800 TL - 3.000 TL'
-      };
-    } else if (surpriseScore >= 2) {
-      return {
-        climateBadge: '⚡ YÜKSEK İKRAMİYE POTANSİYELİ',
-        climateColor: 'text-amber-400',
-        p15: [1200000, 3500000],
-        p14: [20000, 75000],
-        p13: [2000, 8500],
-        p12: [300, 1200],
-        est15Str: '1.200.000 TL - 3.500.000 TL',
-        est14Str: '20.000 TL - 75.000 TL',
-        est13Str: '2.000 TL - 8.500 TL',
-        est12Str: '300 TL - 1.200 TL'
-      };
-    } else {
-      return {
-        climateBadge: '⚖️ DENGELİ HAVUZ',
-        climateColor: 'text-[#38bdf8]',
-        p15: [500000, 1800000],
-        p14: [10000, 35000],
-        p13: [1000, 4000],
-        p12: [150, 500],
-        est15Str: '500.000 TL - 1.800.000 TL',
-        est14Str: '10.000 TL - 35.000 TL',
-        est13Str: '1.000 TL - 4.000 TL',
-        est12Str: '150 TL - 500 TL'
-      };
-    }
-  }, [determinedIndices, matchOutcomes, matches]);
+  // Construct 15-character active scenario choices string ("121121212221222")
+  // For determined matches (live/FT or user override), use the actual outcome.
+  // For pending matches, fallback to highest-probability favorite outcome as baseline projection.
+  const activeScenarioChoices = useMemo(() => {
+    return matchOutcomes.map((m, idx) => {
+      if (m.isDetermined && (m.outcome === '1' || m.outcome === 'X' || m.outcome === '2')) {
+        return m.outcome;
+      }
+      const probs = matchProbabilities[idx] || { '1': 0.33, 'X': 0.33, '2': 0.34 };
+      if (probs['1'] >= probs['X'] && probs['1'] >= probs['2']) return '1';
+      if (probs['2'] >= probs['X']) return '2';
+      return 'X';
+    }).join('');
+  }, [matchOutcomes, matchProbabilities]);
 
-  // Dynamic Prize Payout Simulation (min - max)
-  const minGain = c15 * p15[0] + c14 * p14[0] + c13 * p13[0] + c12 * p12[0];
-  const maxGain = c15 * p15[1] + c14 * p14[1] + c13 * p14[1] + c12 * p12[1];
+  // Execute Realistic Prize Engine calculation
+  const prizeCalc = useMemo(() => {
+    return calculateRealisticPrize({
+      couponChoices: activeScenarioChoices,
+      matchProbabilities,
+      totalRevenue,
+      carryover
+    });
+  }, [activeScenarioChoices, matchProbabilities, totalRevenue, carryover]);
+
+  // Dynamic user's total estimated prize based on their matched columns
+  const userTotalEstimatedPrize = useMemo(() => {
+    return (
+      c15 * prizeCalc.tier15.rawPrize +
+      c14 * prizeCalc.tier14.rawPrize +
+      c13 * prizeCalc.tier13.rawPrize +
+      c12 * prizeCalc.tier12.rawPrize
+    );
+  }, [c15, c14, c13, c12, prizeCalc]);
 
   return (
     <div className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-0.5 select-none text-xs">
@@ -375,26 +383,60 @@ export const LiveStation: React.FC = () => {
         <div className="flex items-center gap-3">
           <span className="text-2xl animate-bounce">🎯</span>
           <div>
-            <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+            <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5 flex-wrap">
               <span>{hasOverrides ? 'What-If Senaryo Simülatörü' : 'Anlık Canlı Skor Değerlendirmesi'}</span>
               {hasOverrides && (
                 <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded text-[9px]">
                   {overrideCount} Maç Simüle Edildi
                 </span>
               )}
+              {prizeCalc.isHighDevirRisk && (
+                <span className="bg-rose-950/80 text-rose-300 border border-rose-500/60 px-1.5 py-0.2 rounded text-[9px] font-extrabold animate-pulse shadow-sm shadow-rose-950">
+                  🔥 Devir Olasılığı Yüksek
+                </span>
+              )}
             </span>
-            <div className="text-sm sm:text-base font-extrabold text-white font-mono mt-0.5">
-              Bu Senaryoda Tahmini Kazancınız:{' '}
-              {minGain > 0 || maxGain > 0 ? (
-                <>
-                  <span className="text-amber-300 font-black">{formatTL(minGain)} TL</span>
-                  <span className="text-[#94a3b8] font-normal mx-1">–</span>
-                  <span className="text-emerald-400 font-black">{formatTL(maxGain)} TL</span>
-                </>
+            <div className="text-sm sm:text-base font-extrabold text-white font-mono mt-0.5 flex items-center flex-wrap gap-2">
+              <span>Bu Senaryoda Tahmini Kazancınız:</span>
+              {userTotalEstimatedPrize > 0 ? (
+                <span className="text-emerald-300 font-black text-base sm:text-lg bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-500/40 shadow-sm shadow-emerald-950">
+                  {formatPrizeTL(userTotalEstimatedPrize)}
+                </span>
               ) : (
                 <span className="text-slate-400 font-bold">0 TL (Henüz 12-15 eşleşme yok)</span>
               )}
+              {pendingCount > 0 && userTotalEstimatedPrize > 0 && (
+                <span className="text-[10px] text-amber-300 font-normal bg-amber-950/50 px-1.5 py-0.5 rounded border border-amber-500/30">
+                  (Kalan {pendingCount} maç favori kabul edilerek modellendi)
+                </span>
+              )}
             </div>
+
+            {/* Kazanan kolon detay hapları */}
+            {(c15 > 0 || c14 > 0 || c13 > 0 || c12 > 0) && (
+              <div className="flex items-center gap-1.5 text-[10px] font-mono mt-1.5 flex-wrap">
+                {c15 > 0 && (
+                  <span className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/40 font-bold">
+                    👑 15 Bilen: {c15} x {prizeCalc.tier15.estimatedPrize}
+                  </span>
+                )}
+                {c14 > 0 && (
+                  <span className="bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded border border-sky-500/40 font-bold">
+                    🎯 14 Bilen: {c14} x {prizeCalc.tier14.estimatedPrize}
+                  </span>
+                )}
+                {c13 > 0 && (
+                  <span className="bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/40 font-bold">
+                    🛡️ 13 Bilen: {c13} x {prizeCalc.tier13.estimatedPrize}
+                  </span>
+                )}
+                {c12 > 0 && (
+                  <span className="bg-slate-700/40 text-slate-300 px-1.5 py-0.5 rounded border border-slate-600/40 font-bold">
+                    📊 12 Bilen: {c12} x {prizeCalc.tier12.estimatedPrize}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -471,33 +513,142 @@ export const LiveStation: React.FC = () => {
           </div>
         </div>
 
-        {/* İkramiye İklimi (5 cols) */}
+        {/* İkramiye İklimi & Olasılık Modeli (5 cols) */}
         <div className="lg:col-span-5 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 flex flex-col justify-between gap-1.5">
-          <div className="flex items-center justify-between border-b border-[#1e293b] pb-1.5">
-            <span className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-wider">
-              🌡️ İkramiye İklimi
-            </span>
-            <span className={`text-[10.5px] font-extrabold ${climateColor}`}>
-              {climateBadge}
-            </span>
+          <div className="flex items-center justify-between border-b border-[#1e293b] pb-1.5 flex-wrap gap-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-wider">
+                🌡️ İkramiye İklimi
+              </span>
+              <button
+                onClick={() => setShowPrizeSettings(prev => !prev)}
+                title="Hasılat ve Devir Ayarlarını Aç/Kapat"
+                className="text-[11px] hover:scale-110 transition p-0.5 rounded cursor-pointer"
+              >
+                ⚙️
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9.5px] font-mono text-cyan-300 bg-[#06080e] px-1.5 py-0.5 rounded border border-[#1e293b]">
+                P: {prizeCalc.couponPopularityScore}
+              </span>
+              <span className={`text-[10.5px] font-extrabold ${prizeCalc.climateColor}`}>
+                {prizeCalc.climateBadge}
+              </span>
+            </div>
           </div>
 
+          {/* Dinamik Hacim / Devir Durumu Preset Butonları */}
+          <div className="grid grid-cols-3 gap-1 my-0.5">
+            {(['normal', 'single_devir', 'record_devir'] as const).map((key) => {
+              const p = VOLUME_PRESETS[key];
+              const isSelected = selectedPreset === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleSelectPreset(key)}
+                  className={`py-1 px-1.5 rounded text-[9.5px] font-bold font-mono transition flex flex-col items-center justify-center cursor-pointer border ${
+                    isSelected
+                      ? 'bg-cyan-950/80 border-cyan-400 text-cyan-300 shadow-sm shadow-cyan-950'
+                      : 'bg-[#06080e] border-[#1e293b] text-[#94a3b8] hover:text-white hover:border-[#334155]'
+                  }`}
+                  title={p.description}
+                >
+                  <span className="truncate">{p.label}</span>
+                  <span className="text-[8.5px] opacity-75">{p.badge} TL</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Collapsible Revenue & Carryover Custom Settings */}
+          {showPrizeSettings && (
+            <div className="bg-[#06080e] border border-cyan-500/30 rounded p-2 text-[10px] font-mono flex flex-col gap-1.5 my-1 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <span className="text-cyan-300 font-bold">Haftalık Hasılat (TL):</span>
+                <input
+                  type="number"
+                  step="1000000"
+                  value={totalRevenue}
+                  onChange={(e) => {
+                    setSelectedPreset('custom');
+                    setTotalRevenue(Math.max(1000000, Number(e.target.value) || 0));
+                  }}
+                  className="w-28 bg-[#0a0f1d] border border-[#334155] rounded px-1.5 py-0.5 text-right text-white text-xs outline-none focus:border-cyan-400"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-amber-300 font-bold">15 Devir Tutarı (TL):</span>
+                <input
+                  type="number"
+                  step="500000"
+                  value={carryover}
+                  onChange={(e) => {
+                    setSelectedPreset('custom');
+                    setCarryover(Math.max(0, Number(e.target.value) || 0));
+                  }}
+                  className="w-28 bg-[#0a0f1d] border border-[#334155] rounded px-1.5 py-0.5 text-right text-white text-xs outline-none focus:border-amber-400"
+                />
+              </div>
+              <div className="flex items-center justify-between text-[9px] text-[#64748b] pt-1 border-t border-[#1e293b]">
+                <span>Toplam Havuz (%55): <strong className="text-white">{formatPrizeTL(prizeCalc.totalPrizePool)}</strong></span>
+                <span>Oynanan Kolon: <strong className="text-emerald-400 font-mono">{(totalRevenue / 10).toLocaleString('tr-TR')}</strong></span>
+              </div>
+              <div className="flex justify-end pt-0.5">
+                <button
+                  onClick={() => handleSelectPreset('normal')}
+                  className="text-cyan-400 hover:underline cursor-pointer text-[9px]"
+                >
+                  Varsayılana Dön (45M Normal)
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 4 Tier Prize Display */}
           <div className="grid grid-cols-2 gap-1.5 text-[10.5px] font-mono">
-            <div className="bg-[#06080e] p-1.5 rounded border border-[#1e293b] flex justify-between">
-              <span className="text-[#94a3b8]">15 Bilen:</span>
-              <span className="font-bold text-emerald-400">{est15Str}</span>
+            {/* 15 */}
+            <div className={`bg-[#06080e] p-1.5 rounded border transition ${c15 > 0 ? 'border-amber-500/60 bg-amber-950/20' : 'border-[#1e293b]'}`}>
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-amber-300 font-bold">15 Bilen:</span>
+                <span className="text-[9px] text-[#94a3b8]">({prizeCalc.tier15.expectedWinners} kişi)</span>
+              </div>
+              <div className="text-xs sm:text-sm font-extrabold text-emerald-400 mt-0.5 truncate">
+                {prizeCalc.tier15.estimatedPrize}
+              </div>
             </div>
-            <div className="bg-[#06080e] p-1.5 rounded border border-[#1e293b] flex justify-between">
-              <span className="text-[#94a3b8]">14 Bilen:</span>
-              <span className="font-bold text-sky-400">{est14Str}</span>
+
+            {/* 14 */}
+            <div className={`bg-[#06080e] p-1.5 rounded border transition ${c14 > 0 ? 'border-sky-500/60 bg-sky-950/20' : 'border-[#1e293b]'}`}>
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-sky-300 font-bold">14 Bilen:</span>
+                <span className="text-[9px] text-[#94a3b8]">({prizeCalc.tier14.expectedWinners} kişi)</span>
+              </div>
+              <div className="text-xs sm:text-sm font-extrabold text-sky-400 mt-0.5 truncate">
+                {prizeCalc.tier14.estimatedPrize}
+              </div>
             </div>
-            <div className="bg-[#06080e] p-1.5 rounded border border-[#1e293b] flex justify-between">
-              <span className="text-[#94a3b8]">13 Bilen:</span>
-              <span className="font-bold text-amber-300">{est13Str}</span>
+
+            {/* 13 */}
+            <div className={`bg-[#06080e] p-1.5 rounded border transition ${c13 > 0 ? 'border-emerald-500/60 bg-emerald-950/20' : 'border-[#1e293b]'}`}>
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-emerald-300 font-bold">13 Bilen:</span>
+                <span className="text-[9px] text-[#94a3b8]">({prizeCalc.tier13.expectedWinners} kişi)</span>
+              </div>
+              <div className="text-xs sm:text-sm font-extrabold text-amber-300 mt-0.5 truncate">
+                {prizeCalc.tier13.estimatedPrize}
+              </div>
             </div>
-            <div className="bg-[#06080e] p-1.5 rounded border border-[#1e293b] flex justify-between">
-              <span className="text-[#94a3b8]">12 Bilen:</span>
-              <span className="font-bold text-slate-300">{est12Str}</span>
+
+            {/* 12 */}
+            <div className={`bg-[#06080e] p-1.5 rounded border border-[#1e293b] transition ${c12 > 0 ? 'border-slate-500/60 bg-slate-900/40' : 'border-[#1e293b]'}`}>
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-slate-300 font-bold">12 Bilen:</span>
+                <span className="text-[9px] text-[#94a3b8]">({prizeCalc.tier12.expectedWinners} kişi)</span>
+              </div>
+              <div className="text-xs sm:text-sm font-extrabold text-slate-300 mt-0.5 truncate">
+                {prizeCalc.tier12.estimatedPrize}
+              </div>
             </div>
           </div>
         </div>

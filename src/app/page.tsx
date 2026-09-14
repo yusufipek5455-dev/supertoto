@@ -172,9 +172,9 @@ const DashboardContent: React.FC = () => {
                   </span>
                   <div className="flex items-center gap-1.5 text-[9.5px] font-mono text-[#94a3b8]">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
-                    <span>Program #{programInfo?.pNo || '357'}</span>
+                    <span>Program #{programInfo?.pNo || '358'}</span>
                     <span>•</span>
-                    <span>Hafta {programInfo?.week || '141236'}</span>
+                    <span>Hafta {programInfo?.week || '141693'}</span>
                   </div>
                 </div>
                 <div className="text-[9.5px] sm:text-[10px] font-mono text-[#64748b]">
@@ -257,7 +257,7 @@ const DashboardContent: React.FC = () => {
                       Sol taraftaki 15 maçlık matriste tercihlerinizi belirledikten sonra <b>[🛡️ Ekonomik]</b> veya <b>[🚀 Akıllı Sürpriz Avcısı]</b> butonuna basarak kuponunuzu oluşturun.
                     </p>
                     <p className="text-[10px] text-[#64748b]">
-                      Üretilen kolonlar 40 TL'lik Nesine yapraklarına (A-B-C-D) paylaştırılarak <b>💼 Kuponlarım</b> istasyonunda eklentisiz Bookmarklet aktarımına hazır hale gelecektir.
+                      Üretilen kolonlar 40 TL'lik Nesine yapraklarına (A-B-C-D) paylaştırılarak <b>💼 Kuponlarım</b> istasyonunda <b>🚀 Nesine'ye Otomatik Aktar</b> modülüyle doğrudan hesabınıza aktarıma hazır hale gelecektir.
                     </p>
                   </div>
                 </div>

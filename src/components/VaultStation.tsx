@@ -5,8 +5,6 @@ import { NesineExportModal } from './NesineExportModal';
 
 export const VaultStation: React.FC = () => {
   const { solution, matches, setToastMessage, setSelectedTab, programInfo } = useToto() as any;
-  const [activeFormat, setActiveFormat] = useState<'txt' | 'compact' | 'std'>('txt');
-  const [copiedType, setCopiedType] = useState<string | null>(null);
   const [selectedSheetIdx, setSelectedSheetIdx] = useState<number>(0);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
   const [isNesineModalOpen, setIsNesineModalOpen] = useState<boolean>(false);
@@ -40,48 +38,6 @@ export const VaultStation: React.FC = () => {
   const safeIdx = Math.min(Math.max(0, selectedSheetIdx), Math.max(0, sheets.length - 1));
   const currentSheet = sheets[safeIdx] || null;
 
-  // Export payloads
-  const plainText = solution.compact_columns ? solution.compact_columns.join('\n') : columns.map(c => c.join('')).join('\n');
-  const compactJson = JSON.stringify({
-    compact: true,
-    cols: solution.compact_columns || columns.map(c => c.join('')),
-    total_columns: totCols,
-    total_sheets: totSheets,
-    total_cost_tl: totCost
-  });
-  const stdJson = JSON.stringify({
-    sheets: sheets,
-    total_columns: totCols,
-    total_sheets: totSheets,
-    total_cost_tl: totCost
-  }, null, 2);
-
-  const handleCopy = (text: string, label: string) => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        setCopiedType(label);
-        setToastMessage(`${label} panoya kopyalandı!`);
-        setTimeout(() => setCopiedType(null), 2000);
-      });
-    } else {
-      prompt("Kopyalayın:", text);
-      setToastMessage(`${label} panoya kopyalandı!`);
-    }
-  };
-
-  const handleDownload = (content: string, filename: string, type: string) => {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setToastMessage(`💾 ${filename} başarıyla indirildi.`);
-  };
-
   return (
     <div className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-0.5 select-none text-xs">
       {/* 1. Header Metrics */}
@@ -103,7 +59,7 @@ export const VaultStation: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Main Grid: Left Export Hub / Right Single Sheet Inspector */}
+      {/* 2. Main Grid: Left Nesine Automated Export Hub / Right Single Sheet Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1">
         {/* Left Column (5 cols): Streamlined Nesine Direct Upload Hub */}
         <div className="lg:col-span-5 flex flex-col justify-between gap-3 bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-4 shadow-xl">
@@ -125,7 +81,7 @@ export const VaultStation: React.FC = () => {
               className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.98] cursor-pointer text-xs"
             >
               <span className="text-lg">🚀</span>
-              <span>Nesine'ye Otomatik Aktar</span>
+              <span className="text-[12.5px]">Nesine'ye Otomatik Aktar</span>
               <span className="text-[10px] font-bold bg-slate-950 text-emerald-300 px-2 py-0.5 rounded-md">
                 10'lu Batch
               </span>
@@ -152,7 +108,7 @@ export const VaultStation: React.FC = () => {
             </div>
           </div>
 
-          {/* Secondary Actions: Kupon Havuzu & Çevrimdışı İndirme */}
+          {/* Secondary Action: Kupon Havuzu Kayıt */}
           <div className="flex flex-col gap-2 pt-2 border-t border-[#1e293b]">
             <button
               onClick={() => setIsSaveModalOpen(true)}
@@ -161,24 +117,8 @@ export const VaultStation: React.FC = () => {
               <span>💾</span>
               <span>Kupon Havuzuna Ekle (Çoklu Takip)</span>
             </button>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => handleDownload(plainText, `supertoto_${mode}_${totCols}kolon.txt`, 'text/plain')}
-                className="py-1.5 px-2 bg-[#06080e] hover:bg-[#0f172a] text-[#94a3b8] hover:text-white border border-[#1e293b] rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
-              >
-                <span>📝</span> .TXT İndir
-              </button>
-              <button
-                onClick={() => handleDownload(`No,Kolon\n` + columns.map((c, i) => `${i + 1},${c.join('')}`).join('\n'), `supertoto_${mode}_${totCols}kolon.csv`, 'text/csv')}
-                className="py-1.5 px-2 bg-[#06080e] hover:bg-[#0f172a] text-[#94a3b8] hover:text-white border border-[#1e293b] rounded-lg text-[10px] font-bold flex items-center justify-center gap-1 transition cursor-pointer"
-              >
-                <span>📊</span> .CSV İndir
-              </button>
-            </div>
           </div>
         </div>
-
 
         {/* Right Column (7 cols): Single 40 TL Sheet Inspector (Zero DOM Overload) */}
         <div className="lg:col-span-7 flex flex-col bg-[#0a0f1d] border border-[#1e293b] rounded-lg p-3 overflow-hidden">
@@ -311,5 +251,3 @@ export const VaultStation: React.FC = () => {
     </div>
   );
 };
-
-

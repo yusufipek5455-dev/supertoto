@@ -36,7 +36,7 @@ export function saveCoupon(payload: {
     id: `coupon_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     name: payload.name.trim() || `Kupon - ${payload.columnsCount} Kolon`,
     createdAt: new Date().toISOString(),
-    week: payload.week || '141236',
+    week: payload.week || '141693',
     columnsCount: payload.columnsCount,
     columns: payload.columns,
     compact_columns: payload.compact_columns,

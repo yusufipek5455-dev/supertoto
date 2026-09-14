@@ -1,15 +1,24 @@
 /**
- * Generates an automated transfer script to save generated Toto columns
- * into Nesine's Saved Coupons (Kayıtlı Kuponlar) in 10-coupon batches with rate-limit cooldown.
+ * Nesine 10'lu Paket Yükleme Betik Motoru (generateNesineScript)
+ *
+ * Üretilen Spor Toto kolonlarını 4'erli kupon gruplarına (K01, K02...) ayırıp
+ * Nesine'nin https://st.nesine.com/v1/SavedCoupon/Save API endpoint'ine doğrudan POST isteği atar.
+ *
+ * Özellikler:
+ * - document.cookie üzerinden XSRF-TOKEN dinamik okunur.
+ * - Kuponlar arası 350ms bekleme süresi.
+ * - Her 10 kuponda bir (K10, K20...) 2.5 saniye (COOLDOWN_MS = 2500) dinlenme ile rate-limit kalkanı.
+ * - Konsolda renkli ilerleme logları ve işlem tamamlandığında alert bildirimi.
  */
-export function generateNesineTransferScript(
+
+export function generateNesineScript(
   columns: string[],
   memberId: number | string = 18950960,
-  pno: number | string = 357
+  pno: number | string = 358
 ): string {
   const safeColumnsJson = JSON.stringify(columns);
   const defaultMemberId = Number(memberId) || 18950960;
-  const defaultPno = Number(pno) || 357;
+  const defaultPno = Number(pno) || 358;
 
   return `(async function transferAllNesineCoupons() {
   const columns = ${safeColumnsJson};
@@ -113,3 +122,6 @@ export function generateNesineTransferScript(
   alert("✅ Tüm " + totalCoupons + " adet kupon başarıyla Nesine hesabınıza (Kayıtlı Kuponlar) aktarıldı!");
 })();`;
 }
+
+// Backward compatibility alias
+export const generateNesineTransferScript = generateNesineScript;

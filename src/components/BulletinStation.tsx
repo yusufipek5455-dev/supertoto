@@ -1,13 +1,13 @@
-﻿import React from 'react';
+import React from 'react';
 import { useToto } from '../context/TotoContext';
 
 export const BulletinStation: React.FC = () => {
   const { matches, programInfo, isLoadingBulletin, fetchLiveBulletin, setSelectedTab, setToastMessage } = useToto() as any;
 
-  const pNo = programInfo?.pNo || '357';
-  const week = programInfo?.week || '141236';
-  const startDate = (programInfo?.startDate || '11.09.2026 19:55').replace('T', ' ').slice(0, 16);
-  const endDate = (programInfo?.endDate || '14.09.2026 21:45').replace('T', ' ').slice(0, 16);
+  const pNo = programInfo?.pNo || '358';
+  const week = programInfo?.week || '141693';
+  const startDate = (programInfo?.startDate || '18.09.2026 19:55').replace('T', ' ').slice(0, 16);
+  const endDate = (programInfo?.endDate || '20.09.2026 21:45').replace('T', ' ').slice(0, 16);
 
   return (
     <div className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-0.5 select-none text-xs">

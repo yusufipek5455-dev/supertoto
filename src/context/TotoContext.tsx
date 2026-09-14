@@ -163,21 +163,21 @@ export function getCascadingOdds(
 }
 
 const DEFAULT_MATCHES: MatchData[] = [
-  { id: 1, date: "11.09 20:00", home: "Beşiktaş A.Ş.", away: "Erzurumspor FK", odds: [90.0, 7.0, 3.0], picks: ['1'] },
-  { id: 2, date: "12.09 17:00", home: "Eyüpspor", away: "Çaykur Rizespor A.Ş.", odds: [22.0, 28.0, 50.0], picks: ['1'] },
-  { id: 3, date: "12.09 17:00", home: "Samsunspor A.Ş.", away: "Çorum FK", odds: [56.0, 24.0, 20.0], picks: ['1'] },
-  { id: 4, date: "12.09 20:00", home: "Alanyaspor", away: "Göztepe A.Ş.", odds: [42.0, 30.0, 28.0], picks: ['1'] },
-  { id: 5, date: "12.09 20:00", home: "Konyaspor", away: "Trabzonspor A.Ş.", odds: [15.0, 19.0, 66.0], picks: ['1'] },
-  { id: 6, date: "13.09 17:00", home: "Gençlerbirliği", away: "Kasımpaşa A.Ş.", odds: [46.0, 29.0, 25.0], picks: ['1'] },
-  { id: 7, date: "13.09 20:00", home: "Amed Sportif", away: "Başakşehir FK", odds: [35.0, 28.0, 37.0], picks: ['1'] },
-  { id: 8, date: "13.09 20:00", home: "Galatasaray A.Ş.", away: "Kocaelispor", odds: [76.0, 17.0, 7.0], picks: ['1'] },
-  { id: 9, date: "14.09 20:00", home: "Gaziantep F.K. A.Ş.", away: "Fenerbahçe A.Ş.", odds: [11.0, 16.0, 73.0], picks: ['1'] },
-  { id: 10, date: "12.09 16:30", home: "Augsburg", away: "B. Leverkusen", odds: [25.0, 22.0, 53.0], picks: ['1'] },
-  { id: 11, date: "11.09 21:45", home: "Rennes", away: "Marsilya", odds: [35.0, 29.0, 36.0], picks: ['1'] },
-  { id: 12, date: "12.09 17:00", home: "Chelsea", away: "Hull City", odds: [81.0, 12.0, 7.0], picks: ['1'] },
-  { id: 13, date: "13.09 18:30", home: "Manchester United", away: "Manchester City", odds: [25.0, 26.0, 49.0], picks: ['1'] },
-  { id: 14, date: "13.09 17:15", home: "Levante", away: "Barcelona", odds: [6.0, 9.0, 85.0], picks: ['1'] },
-  { id: 15, date: "12.09 19:00", home: "Lazio", away: "AC Milan", odds: [26.0, 30.0, 44.0], picks: ['1'] },
+  { id: 1, date: "18.09 20:00", home: "Kasımpaşa A.Ş.", away: "Konyaspor", odds: [47.0, 32.0, 21.0], picks: ['1'] },
+  { id: 2, date: "18.09 20:00", home: "Kocaelispor", away: "Gaziantep F.K. A.Ş.", odds: [60.0, 24.0, 16.0], picks: ['1'] },
+  { id: 3, date: "19.09 17:00", home: "Çorum FK", away: "Alanyaspor", odds: [55.0, 26.0, 19.0], picks: ['1'] },
+  { id: 4, date: "19.09 17:00", home: "Başakşehir FK", away: "Gençlerbirliği", odds: [67.0, 18.0, 15.0], picks: ['1'] },
+  { id: 5, date: "19.09 20:00", home: "Trabzonspor A.Ş.", away: "Galatasaray A.Ş.", odds: [24.0, 25.0, 51.0], picks: ['1'] },
+  { id: 6, date: "19.09 20:00", home: "Erzurumspor FK", away: "Samsunspor A.Ş.", odds: [41.0, 30.0, 29.0], picks: ['1'] },
+  { id: 7, date: "20.09 17:00", home: "Fenerbahçe A.Ş.", away: "Eyüpspor", odds: [89.0, 6.0, 5.0], picks: ['1'] },
+  { id: 8, date: "20.09 20:00", home: "Amed Sportif Faliyetler", away: "Beşiktaş A.Ş.", odds: [15.0, 23.0, 62.0], picks: ['1'] },
+  { id: 9, date: "20.09 20:00", home: "Göztepe A.Ş.", away: "Çaykur Rizespor A.Ş.", odds: [57.0, 22.0, 21.0], picks: ['1'] },
+  { id: 10, date: "19.09 16:30", home: "Stuttgart", away: "B. Dortmund", odds: [19.0, 19.0, 62.0], picks: ['1'] },
+  { id: 11, date: "19.09 19:30", home: "B. Leverkusen", away: "Leipzig", odds: [71.0, 15.0, 14.0], picks: ['1'] },
+  { id: 12, date: "20.09 16:00", home: "Tottenham", away: "Aston Villa", odds: [43.0, 31.0, 26.0], picks: ['1'] },
+  { id: 13, date: "20.09 18:30", home: "Newcastle United", away: "Hull City", odds: [56.0, 26.0, 18.0], picks: ['1'] },
+  { id: 14, date: "20.09 22:00", home: "Atletico Madrid", away: "Real Madrid", odds: [16.0, 19.0, 65.0], picks: ['1'] },
+  { id: 15, date: "20.09 21:45", home: "AS Roma", away: "Inter", odds: [22.0, 28.0, 50.0], picks: ['1'] },
 ];
 
 const TotoContext = createContext<TotoContextType | undefined>(undefined);
@@ -193,10 +193,10 @@ export const TotoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isSolving, setIsSolving] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [programInfo, setProgramInfo] = useState<{ pNo?: string | number; week?: string | number; startDate?: string; endDate?: string; status?: boolean } | null>({
-    pNo: "357",
-    week: "141236",
-    startDate: "2026-09-11T19:55:00+03:00",
-    endDate: "2026-09-14T21:45:00+03:00"
+    pNo: "358",
+    week: "141693",
+    startDate: "2026-09-18T19:55:00+03:00",
+    endDate: "2026-09-20T21:45:00+03:00"
   });
   const [isLoadingBulletin, setIsLoadingBulletin] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<AppTab>('creator');
@@ -297,7 +297,7 @@ export const TotoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const fetchLiveBulletin = useCallback(async () => {
     setIsLoadingBulletin(true);
     try {
-      const res = await fetch('/api/bulletin');
+      const res = await fetch(`/api/bulletin?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.fixtures && data.fixtures.length === 15) {

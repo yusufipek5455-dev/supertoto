@@ -14,7 +14,7 @@ export const SaveCouponModal: React.FC<SaveCouponModalProps> = ({
   isOpen,
   onClose,
   solution,
-  week = '141236',
+  week = '141693',
   onSuccess
 }) => {
   const [couponName, setCouponName] = useState<string>('');
@@ -99,7 +99,7 @@ export const SaveCouponModal: React.FC<SaveCouponModalProps> = ({
               type="text"
               value={couponName}
               onChange={(e) => setCouponName(e.target.value)}
-              placeholder="Örn: Hafta 141236 - 120 Kolon (13G)"
+              placeholder="Örn: Hafta 141693 - 120 Kolon (13G)"
               className="w-full bg-[#06080e] border border-[#334155] focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8] rounded-lg px-3 py-2 text-white font-medium text-xs outline-none transition"
             />
           </div>

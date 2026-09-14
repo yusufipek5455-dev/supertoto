@@ -1,4 +1,7 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -15,7 +18,7 @@ export async function GET() {
         'Origin': 'https://www.nesine.com',
         'Referer': 'https://www.nesine.com/sportoto',
       },
-      next: { revalidate: 10 }
+      cache: 'no-store'
     });
 
     if (res.ok) {
@@ -62,6 +65,11 @@ export async function GET() {
         return NextResponse.json({
           success: true,
           matches: liveDetails,
+          program_info: {
+            pNo: d.pNo,
+            week: d.week,
+            status: d.status
+          },
           is_live: true
         });
       }
@@ -70,18 +78,24 @@ export async function GET() {
     console.warn("Live scores fetch error:", err?.message);
   }
 
-  // Fallback default state
-  const fallback = Array.from({ length: 15 }, (_, i) => ({
-    no: i + 1,
-    home: `Maç ${i + 1}`,
-    away: `Rakip ${i + 1}`,
-    date: '11.09 20:00',
-    status: 'NS' as const,
-    minute: '-',
-    score: '- - -',
-    current_outcome: '-' as const,
-    is_official: false
-  }));
+  // Fallback for new week 358
+  const fallback = [
+    { no: 1, home: "Kasımpaşa A.Ş.", away: "Konyaspor", date: "18.09 20:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 2, home: "Kocaelispor", away: "Gaziantep F.K. A.Ş.", date: "18.09 20:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 3, home: "Çorum FK", away: "Alanyaspor", date: "19.09 17:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 4, home: "Başakşehir FK", away: "Gençlerbirliği", date: "19.09 17:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 5, home: "Trabzonspor A.Ş.", away: "Galatasaray A.Ş.", date: "19.09 20:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 6, home: "Erzurumspor FK", away: "Samsunspor A.Ş.", date: "19.09 20:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 7, home: "Fenerbahçe A.Ş.", away: "Eyüpspor", date: "20.09 17:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 8, home: "Amed Sportif Faliyetler", away: "Beşiktaş A.Ş.", date: "20.09 20:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 9, home: "Göztepe A.Ş.", away: "Çaykur Rizespor A.Ş.", date: "20.09 20:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 10, home: "Stuttgart", away: "B. Dortmund", date: "19.09 16:30", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 11, home: "B. Leverkusen", away: "Leipzig", date: "19.09 19:30", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 12, home: "Tottenham", away: "Aston Villa", date: "20.09 16:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 13, home: "Newcastle United", away: "Hull City", date: "20.09 18:30", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 14, home: "Atletico Madrid", away: "Real Madrid", date: "20.09 22:00", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+    { no: 15, home: "AS Roma", away: "Inter", date: "20.09 21:45", status: "NS" as const, minute: "-", score: "- - -", current_outcome: "-" as const, is_official: false },
+  ];
 
   return NextResponse.json({
     success: true,
